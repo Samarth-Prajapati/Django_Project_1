@@ -130,7 +130,7 @@ def project_tree_visualization(request):
 def project_tree_html(request):
     """Generate an HTML-based tree visualization that doesn't require Graphviz."""
     try:
-        projects = Project.objects.prefetch_related('resources', 'assign_project').all()
+        projects = Project.objects.prefetch_related('resources', 'assign_project', 'poc').all()
         
         # Create HTML tree structure
         html_tree = ['<div class="tree-container">']
@@ -158,7 +158,7 @@ def project_tree_html(request):
                 html_tree.append('</li>')
             
             # Add POC
-            if hasattr(project, 'poc') and project.poc:
+            if project.poc:
                 html_tree.append(f'<li>🎯 POC: {project.poc.resource_name}</li>')
             
             html_tree.append('</ul>')
@@ -214,12 +214,12 @@ def project_tree_html(request):
 
 def project_tree_view(request):
     """API endpoint that returns project tree data as JSON."""
-    projects = Project.objects.prefetch_related('resources', 'assign_project').all()
+    projects = Project.objects.prefetch_related('resources', 'assign_project', 'poc').all()
     tree = []
     for project in projects:
         assign_project_name = project.assign_project.resource_name if project.assign_project else None
         resource_names = [{"text": res.resource_name, "icon": "fas fa-user"} for res in project.resources.all()]
-        poc_value = project.poc.resource_name if hasattr(project, 'poc') and project.poc else None
+        poc_value = project.poc.resource_name if project.poc else None
        
         project_node = {
             "text": f"{project.project_name} ({project.get_project_type_display()})",
@@ -269,14 +269,14 @@ def project_tree_graphviz(request):
         if project_id:
             # Single project visualization
             try:
-                project = Project.objects.prefetch_related('resources', 'assign_project').get(pk=project_id)
+                project = Project.objects.prefetch_related('resources', 'assign_project', 'poc').get(pk=project_id)
                 projects = [project]
                 root_label = f"Project: {project.project_name}"
             except Project.DoesNotExist:
                 return HttpResponse("Project not found", status=404)
         else:
             # All projects visualization
-            projects = Project.objects.prefetch_related('resources', 'assign_project').all()
+            projects = Project.objects.prefetch_related('resources', 'assign_project', 'poc').all()
             root_label = "All Projects"
         
         # Create root node for the tree
@@ -303,7 +303,7 @@ def project_tree_graphviz(request):
                     Node(f"👤 {res.resource_name}", parent=resources_node)
             
             # Add POC node
-            if hasattr(project, 'poc') and project.poc:
+            if project.poc:
                 Node(f"🎯 POC:\n{project.poc.resource_name}", parent=project_node)
         
         # Generate Graphviz dot content with vertical layout and improved styling

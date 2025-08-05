@@ -9,7 +9,7 @@ class ProjectForm(forms.ModelForm):
         # Exclude auto-calculated and system fields
         fields = [
             'project_name', 'project_type', 'year', 'month', 'resources',
-            'assign_project',
+            'assign_project','poc',
             'present_day', 'billable_days', 'non_billable_days', 'is_active'
         ]
         widgets = {
@@ -20,6 +20,7 @@ class ProjectForm(forms.ModelForm):
             'month': forms.Select(attrs={'class': 'form-select'}),
             'resources': forms.SelectMultiple(attrs={'class': 'form-select'}),
             'assign_project': forms.Select(attrs={'class': 'form-select'}),
+            'poc': forms.Select(attrs={'class': 'form-select'}),
             'present_day': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.5'}),
             'billable_days': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.5'}),
             'non_billable_days': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.5'}),
@@ -33,6 +34,7 @@ class ProjectForm(forms.ModelForm):
             'non_billable_days': 'Non-Billable Days',
             'resources': 'Assigned Resources',
             'assign_project': 'Assigned Resource',
+            'poc': 'Point of Contact',
             'is_active': 'Active?',
         }
         help_texts = {

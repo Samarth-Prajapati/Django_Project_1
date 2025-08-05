@@ -84,6 +84,15 @@ class Project(models.Model):
         help_text="Single resource assigned to this project (optional)"
     )
 
+    poc = models.ForeignKey(
+        Resource,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='poc',
+        help_text="Poc assigned to this project (optional)"
+    )
+
     def save(self, *args, **kwargs):
         if self.billable_days > 0:
             self.billable_hours = self.billable_days * 8
