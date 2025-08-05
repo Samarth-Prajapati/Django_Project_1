@@ -4,6 +4,11 @@ from datetime import date
 
 # Create your models here.
 
+class ActiveManager(models.Manager):
+    """Manager that returns only active records"""
+    def get_queryset(self):
+        return super().get_queryset().filter(is_active=True)
+
 class Resource(models.Model):
     """
     Stores resource (developer/employee) data for a specific year and month.
@@ -42,6 +47,11 @@ class Resource(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     counting = models.FloatField(default=0, help_text="Counting value")
+    is_active = models.BooleanField(default=True, help_text="For soft deletion")
+
+    # Managers
+    objects = models.Manager()  # Default manager for admin and migrations
+    active_objects = ActiveManager()  # Manager for active records only
 
     class Meta:
         db_table = 'resources'
@@ -96,3 +106,13 @@ class Resource(models.Model):
             return "0 days (year/month not set)"
         wd = self.get_working_days(self.year, self.month)
         return f"{wd} days ({calendar.month_name[self.month]} {self.year})"
+
+    def soft_delete(self):
+        """Soft delete the resource"""
+        self.is_active = False
+        self.save()
+
+    def restore(self):
+        """Restore soft deleted resource"""
+        self.is_active = True
+        self.save()

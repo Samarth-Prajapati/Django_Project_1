@@ -6,6 +6,11 @@ import calendar
 
 # Create your models here.
 
+class ActiveManager(models.Manager):
+    """Manager that returns only active records"""
+    def get_queryset(self):
+        return super().get_queryset().filter(is_active=True)
+
 class Project(models.Model):
     """
     Represents a project with multiple resources assigned to it,
@@ -93,6 +98,10 @@ class Project(models.Model):
         help_text="Poc assigned to this project (optional)"
     )
 
+    # Managers
+    objects = models.Manager()  # Default manager for admin and migrations
+    active_objects = ActiveManager()  # Manager for active records only
+
     def save(self, *args, **kwargs):
         if self.billable_days > 0:
             self.billable_hours = self.billable_days * 8
@@ -133,6 +142,16 @@ class Project(models.Model):
 
     def get_absolute_url(self):
         return reverse('projects:project_detail', args=[str(self.id)])
+
+    def soft_delete(self):
+        """Soft delete the project"""
+        self.is_active = False
+        self.save()
+
+    def restore(self):
+        """Restore soft deleted project"""
+        self.is_active = True
+        self.save()
 
     class Meta:
         db_table = 'projects'

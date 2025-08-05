@@ -16,6 +16,11 @@
     <strong>Month:</strong> {{ resource.month }}
   </div>
 
+  <div class="alert alert-info">
+    <i class="fas fa-info-circle"></i> <strong>Note:</strong> This will hide the
+    resource from active lists but preserve all data for reporting purposes.
+  </div>
+
   <form method="post">
     {% csrf_token %}
     <button type="submit" class="btn btn-danger">

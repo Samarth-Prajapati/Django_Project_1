@@ -49,8 +49,8 @@ def dashboard_home(request):
     # Filter projects/resources by year and month (month as number)
     from resources.models import Resource
     from .models import Project
-    projects = Project.objects.filter(year=year, month=month)
-    resources = Resource.objects.filter(year=year, month=month)
+    projects = Project.active_objects.filter(year=year, month=month)  # Only active projects
+    resources = Resource.active_objects.filter(year=year, month=month)  # Only active resources
     return render(request, 'home.html', {
         'years': years,
         'months': months,
@@ -63,11 +63,11 @@ def dashboard_home(request):
     })
 
 def project_list(request):
-    years = list(Project.objects.values_list('year', flat=True).distinct())
-    months = list(Project.objects.values_list('month', flat=True).distinct())
+    years = list(Project.active_objects.values_list('year', flat=True).distinct())
+    months = list(Project.active_objects.values_list('month', flat=True).distinct())
     selected_year = request.GET.get('year')
     selected_month = request.GET.get('month')
-    projects = Project.objects.all()
+    projects = Project.active_objects.all()  # Only show active projects
     if selected_year:
         projects = projects.filter(year=selected_year)
     if selected_month:
@@ -117,7 +117,7 @@ def project_edit(request, pk):
 def project_delete(request, pk):
     project = get_object_or_404(Project, pk=pk)
     if request.method == 'POST':
-        project.delete()
+        project.soft_delete()  # Use soft delete instead of actual deletion
         return redirect('projects:project_list')
     return render(request, 'projects/project_confirm_delete.html', {'project':project})
 
@@ -437,8 +437,8 @@ def attendance_home(request):
         month = now.month
     
     # Filter by year and month if provided
-    resources = Resource.objects.all()
-    projects = Project.objects.prefetch_related('resources').all()
+    resources = Resource.active_objects.all()  # Only active resources
+    projects = Project.active_objects.prefetch_related('resources').all()  # Only active projects
     
     if year_param and month_param:
         resources = resources.filter(year=year, month=month)

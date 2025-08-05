@@ -49,5 +49,7 @@ class ProjectForm(forms.ModelForm):
             self.initial['year'] = date.today().year
         if not self.initial.get('month'):
             self.initial['month'] = date.today().month
-        # Optional: order resources by name
-        self.fields['resources'].queryset = Resource.objects.order_by('resource_name')
+        # Only show active resources in dropdowns
+        self.fields['resources'].queryset = Resource.active_objects.order_by('resource_name')
+        self.fields['assign_project'].queryset = Resource.active_objects.order_by('resource_name')
+        self.fields['poc'].queryset = Resource.active_objects.order_by('resource_name')

@@ -6,7 +6,7 @@ from django.contrib import messages
  
  
 def resource_list(request):
-    resources = Resource.objects.all()
+    resources = Resource.active_objects.all()  # Only show active resources
     return render(request, 'resources/resource_list.html', {'resources': resources, 'title': 'Resources'})
 
 def resource_create(request):
@@ -45,7 +45,7 @@ def resource_update(request, pk):
 def resource_delete(request, pk):
     resource = get_object_or_404(Resource, pk=pk)
     if request.method == 'POST':
-        resource.delete()
+        resource.soft_delete()  # Use soft delete instead of actual deletion
         messages.success(request, 'Resource deleted successfully.')
         return redirect('resources:resource_list')
     return render(request, 'resources/resource_confirm_delete.html', {'resource': resource})

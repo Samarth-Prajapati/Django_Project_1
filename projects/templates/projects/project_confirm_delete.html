@@ -1,13 +1,20 @@
-{% extends 'base.html' %}
-{% block title %}Delete Project{% endblock %}
-{% block content %}
+{% extends 'base.html' %} {% block title %}Delete Project{% endblock %} {% block content %}
 <div class="container mt-5">
   <h2>Confirm Delete</h2>
-  <p>Are you sure you want to delete the project <strong>{{ project.project_name }}</strong>?</p>
+  <p>
+    Are you sure you want to delete the project
+    <strong>{{ project.project_name }}</strong>?
+  </p>
+  <div class="alert alert-warning">
+    <i class="fas fa-info-circle"></i> <strong>Note:</strong> This will hide the
+    project from active lists but preserve all data for reporting purposes.
+  </div>
   <form method="post">
     {% csrf_token %}
     <button type="submit" class="btn btn-danger">Yes, Delete</button>
-    <a href="{% url 'projects:project_list' %}" class="btn btn-secondary">Cancel</a>
+    <a href="{% url 'projects:project_list' %}" class="btn btn-secondary"
+      >Cancel</a
+    >
   </form>
 </div>
 {% endblock %}
