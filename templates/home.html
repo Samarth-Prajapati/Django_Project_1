@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    body { background-color: #f8f9fa; }
+    .sidebar { min-height: 100vh; background-color: #343a40; color: white; }
+    .sidebar .nav-link { color: white; }
+    .sidebar .nav-link:hover { background-color: #495057; }
+    .tab-content-area { padding: 20px; background-color: white; min-height: 80vh; border-radius: 8px; }
+    .navbar-brand { font-weight: bold; }
+</style>
+
+<div class="container-fluid">
+    <!-- Month Tabs: directly after navbar, full width -->
+    <div class="row">
+
+    </div>
+    <!-- Main content grid: sidebar + content -->
+    <div class="row">
+        <!-- Sidebar removed: year dropdown and filter button now in top bar -->
+        <div class="col-md-10">
+                <div class="tab-content-area mt-3" id="mainContent">
+                    <h2>Project & Resource Calendar</h2>
+                    {% if projects %}
+                    <h4>Projects ({{ projects|length }})</h4>
+                    <table class="table table-bordered table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Project Name</th>
+                                <th>Type</th>
+                                <th>Resources</th>
+                                <th>Billable Days</th>
+                                <th>Non-Billable Days</th>
+                                <th>Year</th>
+                                <th>Month</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for project in projects %}
+                            <tr>
+                                <td>{{ project.project_name }}</td>
+                                <td>{{ project.get_project_type_display }}</td>
+                                <td>
+                                  {% for resource in project.resources.all %}
+                                    {{ resource.resource_name }}{% if not forloop.last %}, {% endif %}
+                                  {% endfor %}
+                                </td>
+                                <td>{{ project.billable_days }}</td>
+                                <td>{{ project.non_billable_days }}</td>
+                                <td>{{ project.year }}</td>
+                                <td>{{ project.month }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                        <p>No projects found for the selected year and month.</p>
+                    {% endif %}
+
+                    {% if resources %}
+                    <h4>Resources ({{ resources|length }})</h4>
+                    <table class="table table-bordered table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Name</th>
+                                <th>Working Days</th>
+                                <th>Days Present</th>
+                                <th>Hours Present</th>
+                                <th>Year</th>
+                                <th>Month</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for resource in resources %}
+                            <tr>
+                                <td>{{ resource.resource_name }}</td>
+                                <td>{{ resource.working_days }}</td>
+                                <td>{{ resource.present_day }}</td>
+                                <td>{{ resource.present_hours }}</td>
+                                <td>{{ resource.year }}</td>
+                                <td>{{ resource.month }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                        <p>No resources found for the selected year and month.</p>
+                    {% endif %}
+        </div>
+    </div>
+    <!-- Month/Year selection moved to bottom -->
+    <div class="row mt-4">
+        <div class="col-12 d-flex align-items-center justify-content-center mb-3">
+            <select class="form-select me-3" style="width: 150px; max-width: 200px;" id="yearSelect" name="year">
+                {% for y in years %}
+                <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+                {% endfor %}
+            </select>
+            <ul class="nav nav-tabs" id="monthTabs">
+                {% for m in months %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if forloop.counter == month %}active{% endif %}"
+                           href="#" data-month="{{ forloop.counter }}">{{ m }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Get year select
+    const yearSelect = document.getElementById('yearSelect');
+    // Month tab navigation
+    const monthTabs = document.getElementById('monthTabs');
+    if (monthTabs) {
+        monthTabs.querySelectorAll('a[data-month]').forEach(function(tab) {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                const selectedMonth = this.getAttribute('data-month');
+                const year = yearSelect.value;
+                window.location.href = `?year=${year}&month=${selectedMonth}`;
+            });
+        });
+    }
+    // Save year to localStorage whenever changed
+    yearSelect.addEventListener('change', function() {
+        localStorage.setItem('selectedYear', yearSelect.value);
+        // On year change, reload page with selected year and current month
+        const activeTab = monthTabs.querySelector('a.nav-link.active');
+        let month = activeTab ? activeTab.getAttribute('data-month') : '';
+        if (!month) month = new Date().getMonth() + 1;
+        window.location.href = `?year=${yearSelect.value}&month=${month}`;
+    });
+    // Restore year from localStorage if not already set by server
+    const storedYear = localStorage.getItem('selectedYear');
+    if (storedYear && !yearSelect.value) yearSelect.value = storedYear;
+});
+</script>
+{% endblock %}

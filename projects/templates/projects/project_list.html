@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Projects{% endblock %}
+{% block content %}
+<div class="container mt-5">
+  <h2>Projects</h2>
+  <a href="{% url 'projects:project_create' %}" class="btn btn-primary mb-3">+ New Project</a>
+  <form method="get" class="row g-3 mb-3">
+    <div class="col-auto">
+      <select name="year" class="form-select">
+        <option value="">All Years</option>
+        {% for y in years %}
+        <option value="{{ y }}" {% if selected_year|stringformat:'s' == y|stringformat:'s' %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-auto">
+      <select name="month" class="form-select">
+        <option value="">All Months</option>
+        {% for m in months %}
+        <option value="{{ m }}" {% if selected_month|stringformat:'s' == m|stringformat:'s' %}selected{% endif %}>{{ m }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-secondary">Filter</button>
+    </div>
+  </form>
+  <table class="table table-bordered table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>Project Name</th>
+        <th>Project Type</th>
+        <th>Resources</th>
+        <th>Assigned Resource</th>
+        <th>Days Present</th>
+        <th>Billable Days</th>
+        <th>Non-Billable Days</th>
+        <th>Billable Hours</th>
+        <th>Non-Billable Hours</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for project in projects %}
+        <tr>
+          <td>{{ project.project_name }}</td>
+          <td>{{ project.get_project_type_display }}</td>
+          <td>
+            {% for resource in project.resources.all %}
+              <span>{{ resource.resource_name }}</span>{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+          </td>
+          <td>{% if project.assign_project %}{{ project.assign_project.resource_name }}{% else %}-{% endif %}</td>
+          <td>{{ project.present_day }}</td>
+          <td>{{ project.billable_days }}</td>
+          <td>{{ project.non_billable_days }}</td>
+          <td>{{ project.billable_hours }}</td>
+          <td>{{ project.non_billable_hours }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="9">No projects available.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% load dict_extras %}
+{% block content %}
+    <div class="container py-4">
+      <div class="row mb-4">
+        <div class="col-12 text-center">
+          <h2 class="fw-bold mb-2">Attendance Dashboard</h2>
+          <p class="lead mb-0">Overview of Resource and Project Attendance</p>
+        </div>
+      </div>
+      <!-- Tabs -->
+      <ul class="nav nav-tabs justify-content-center" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="resource-tab" data-bs-toggle="tab" data-bs-target="#resource" type="button" role="tab" aria-controls="resource" aria-selected="true">Resource</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="project-tab" data-bs-toggle="tab" data-bs-target="#project" type="button" role="tab" aria-controls="project" aria-selected="false">Project</button>
+        </li>
+      </ul>
+
+      <!-- Tab Contents -->
+      <div class="tab-content" id="myTabContent">
+        <!-- Resource Tab -->
+        <div class="tab-pane fade show active p-4" id="resource" role="tabpanel" aria-labelledby="resource-tab">
+          <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0">Resource Attendance</h5>
+            </div>
+            <div class="card-body">
+              <div class="row mb-3">
+                              </div>
+              </div>
+              <div class="table-responsive">
+                <table id="resourceTable" class="table table-bordered table-hover align-middle">
+                  <thead class="table-dark">
+                    <tr class="text-center align-middle">
+                      <th>Name</th>
+                      <th>Working Days</th>
+                      <th>Days Present</th>
+                      <th>Hours Present</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+              {% if resources %}
+              {% for resource in resources %}
+              <tr>
+                <td>{{ resource.resource_name }}</td>
+                <td>{{ resource.working_days }}</td>
+                <td>{{ resource.present_day }}</td>
+                <td>{{ resource.present_hours }}</td>
+                <td>
+                  <a href="{% url 'resources:resource_update' resource.pk %}" class="btn btn-sm btn-primary">Edit</a>
+                  <a href="{% url 'resources:resource_delete' resource.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="5" class="text-center">No resources found.</td>
+              </tr>
+            {% endif %}
+                  </tbody>
+                  <tfoot>
+                    <tr class="table-secondary fw-bold">
+                      <td>Total</td>
+                      <td>{{ total_working_days }}</td>
+                      <td>{{ total_present_days }}</td>
+                      <td>{{ total_present_hours }}</td>
+                      <td></td>
+                    </tr>
+                    <tr class="table-secondary fw-bold">
+                      <td colspan="4">Presence Percentage</td>
+                      <td>{{ presence_percentage|floatformat:2 }}%</td>
+                    </tr>
+                  </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Project Tab -->
+  <div class="tab-pane fade p-4" id="project" role="tabpanel" aria-labelledby="project-tab">
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">Project Attendance</h5>
+    </div>
+      <div class="card-body">
+      {% if pie_chart_url %}
+      <div class="mb-4 text-center">
+        <h6 class="fw-bold">Team Productivity by Project Type</h6>
+        <img src="{{ pie_chart_url }}" alt="Team Productivity Pie Chart" style="max-width:400px; width:100%; height:auto; border:1px solid #ccc; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+      </div>
+      {% elif pie_chart_error %}
+      <div class="alert alert-warning text-center mb-4">
+        Pie chart could not be generated. Not enough productivity data or a backend error occurred.
+      </div>
+      {% endif %}
+      {% for type, projects in grouped_projects.items %}
+      <div class="mb-4">
+        <h6 class="fw-bold">{{ type }}</h6>
+        <div class="table-responsive">
+          <table id="projectTable_{{ forloop.counter }}" class="table table-striped table-bordered align-middle">
+            <thead class="table-dark">
+              <tr class="text-center align-middle">
+                <th>Project Name</th>
+                <th>Resources</th>
+                <th>Assigned Resource</th>
+                <th>Days Present</th>
+                <th>Billable Days</th>
+                <th>Non-Billable Days</th>
+                <th>Billable Hours</th>
+                <th>Non-Billable Hours</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for proj in projects %}
+              <tr>
+                <td>{{ proj.project_name }}</td>
+                <td>
+                  {% for resource in proj.resources.all %}
+                    <span>{{ resource.resource_name }}</span>{% if not forloop.last %}, {% endif %}
+                  {% endfor %}
+                </td>
+                <td>{% if proj.assign_project %}{{ proj.assign_project.resource_name }}{% else %}-{% endif %}</td>
+                <td>{{ proj.present_day }}</td>
+                <td>{{ proj.billable_days }}</td>
+                <td>{{ proj.non_billable_days }}</td>
+                <td>{{ proj.billable_hours }}</td>
+                <td>{{ proj.non_billable_hours }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot>
+              <tr class="table-secondary fw-bold">
+                <td colspan="3">Total for {{ type }}</td>
+                <td>{{ type_totals|dict_key:type|dict_key:"present_day" }}</td>
+                <td>{{ type_totals|dict_key:type|dict_key:"billable_days" }}</td>
+                <td>{{ type_totals|dict_key:type|dict_key:"non_billable_days" }}</td>
+                <td>{{ type_totals|dict_key:type|dict_key:"billable_hours" }}</td>
+                <td>{{ type_totals|dict_key:type|dict_key:"non_billable_hours" }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+      {% endfor %}
+      <div class="mt-4">
+        <table class="table table-bordered table-secondary">
+          <tr class="fw-bold">
+            <td colspan="5">Grand Total</td>
+            <td>{{ total_project_present_day }}</td>
+            <td>{{ total_project_billable_days }}</td>
+            <td>{{ total_project_non_billable_days }}</td>
+            <td>{{ total_project_billable_hours }}</td>
+            <td>{{ total_project_non_billable_hours }}</td>
+          </tr>
+          <tr class="fw-bold">
+            <td colspan="8">Team Productivity Percentage</td>
+            <td>{{ team_productivity_percentage|floatformat:2 }}</td>
+          </tr>
+        </table>
+      </div>
+      <!-- Team Productivity Percentage Pie Chart (matplotlib) -->
+{% if pie_chart_base64 %}
+  <div class="my-4 text-center">
+    <h6 class="fw-bold">
+      Team Productivity Percentage<br>
+          
+    </h6>
+    <img src="data:image/png;base64,{{ pie_chart_base64 }}" alt="Team Productivity Pie Chart" style="max-width: 400px;">
+    <div class="mt-2">
+      <span class="badge bg-success">Productive: {{ team_productivity_percentage|floatformat:2 }}%</span>
+      <span class="badge bg-danger">Not Productive: {{ not_productive_percentage|floatformat:2 }}%</span>
+    </div>
+  </div>
+{% endif %}
+          </tr>
+        </table>
+      </div>
+      <div class="mt-4">
+        <table class="table table-bordered table-success">
+          <tr class="fw-bold">
+            <td colspan="7">Team Productivity Hours (Total Billable Hours of All Project Types)</td>
+            <td>{{ team_productivity_hours }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+$(document).ready(function() {
+  {% for type, projects in grouped_projects.items %}
+    $('#projectTable_{{ forloop.counter }}').DataTable({
+      paging: true,
+      searching: true,
+      ordering: true,
+      responsive: true
+    });
+  {% endfor %}
+});
+</script>
+    <!-- JS -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/2.3.2/js/dataTables.bootstrap5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/2.3.2/js/dataTables.js"></script>
+    <!-- DataTables Init Script -->
+    <script>
+      $(document).ready(function () {
+        // Initialize DataTable for the active tab
+        $("#resourceTable").DataTable({
+  paging: true,
+  searching: false,
+  info: false,
+  lengthChange: false,
+  ordering: true,
+  responsive: true
+});
+
+        // Handle tab switching
+        $('a[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {
+          let tabTarget = $(e.target).attr("href");
+          let table = $(tabTarget).find("table");
+
+          if (tabTarget === "#project") {
+            // Initialize project table if not already initialized
+            if (!$.fn.DataTable.isDataTable("#projectTable")) {
+              $("#projectTable").DataTable({
+                responsive: true,
+                pageLength: 10,
+                lengthMenu: [
+                  [5, 10, 25, 50],
+                  [5, 10, 25, 50],
+                ],
+                language: {
+                  search: "Search:",
+                  lengthMenu: "Show _MENU_ entries per page",
+                  info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                  infoEmpty: "Showing 0 to 0 of 0 entries",
+                  infoFiltered: "(filtered from _MAX_ total entries)",
+                },
+              });
+            }
+          }
+          // Adjust columns for responsive behavior
+        });
+      });
+    </script>
+{% endblock %}

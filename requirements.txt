@@ -1,0 +1,4 @@
+django
+anytree
+graphviz
+matplotlib
