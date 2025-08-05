@@ -47,7 +47,7 @@ def resource_delete(request, pk):
     if request.method == 'POST':
         resource.delete()
         messages.success(request, 'Resource deleted successfully.')
-        return redirect('resource_list')
+        return redirect('resources:resource_list')
     return render(request, 'resources/resource_confirm_delete.html', {'resource': resource})
  
  

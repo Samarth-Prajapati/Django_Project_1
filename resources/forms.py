@@ -13,22 +13,32 @@ class ResourceForm(forms.ModelForm):
                 'placeholder': 'Leave blank for auto-calculation'
             }),
             'present_day': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.5'}),
-            'present_hours': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.5'})
+            'present_hours': forms.NumberInput(attrs={
+                'class': 'form-control', 
+                'step': '0.5',
+                'readonly': True,
+                'placeholder': 'Auto-calculated from present days × 8'
+            })
         }
         labels = {
             'resource_name': 'Resource Name',
             'present_day': 'Days Present',
-            'present_hours': 'Hours Present',
+            'present_hours': 'Hours Present (Auto-calculated)',
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Add help text for working days
         self.fields['working_days'].required = False
+        self.fields['present_hours'].required = False
+        
         if self.instance and self.instance.pk:
             self.fields['working_days'].help_text = f"Auto-calculated value: {getattr(self.instance, 'get_working_days_for_display', lambda: '')()}"
         else:
             self.fields['working_days'].help_text = "Auto-calculated if left blank."
+        
+        # Set help text for present_hours
+        self.fields['present_hours'].help_text = "Automatically calculated as: Present Days × 8 hours"
 
     def clean(self):
         cleaned_data = super().clean()

@@ -58,9 +58,11 @@ class Resource(models.Model):
         if not self.working_days:
             self.working_days = self.get_working_days(self.year, self.month)
 
-        # Auto-calculate present hours if not provided
-        if self.present_day and not self.present_hours:
+        # Auto-calculate present hours based on present_day (always recalculate)
+        if self.present_day:
             self.present_hours = self.present_day * 8
+        else:
+            self.present_hours = 0
 
         super().save(*args, **kwargs)
 

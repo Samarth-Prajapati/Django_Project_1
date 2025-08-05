@@ -489,6 +489,7 @@ def attendance_home(request):
 
     # Clamp to [0, 100] to avoid negative or >100 values
     team_productivity_percentage = max(0, min(100, team_productivity_percentage))
+    not_productive_percentage = 100 - team_productivity_percentage
 
     # --- PIE CHART GENERATION FOR OVERALL PRODUCTIVITY ---
     pie_chart_base64 = None
@@ -496,7 +497,7 @@ def attendance_home(request):
         # Only generate chart if we have meaningful data
         if team_productivity_hours > 0 or expected_hours > 0:
             labels = ['Productive', 'Not Productive']
-            sizes = [team_productivity_percentage, 100 - team_productivity_percentage]
+            sizes = [team_productivity_percentage, not_productive_percentage]
             colors = ['#4CAF50', '#FF5252']
             
             # Create figure with specific size and DPI for better quality
@@ -537,6 +538,7 @@ def attendance_home(request):
         'total_project_non_billable_hours': total_project_non_billable_hours,
         'presence_percentage': presence_percentage,
         'team_productivity_percentage': team_productivity_percentage,
+        'not_productive_percentage': not_productive_percentage,
         'team_productivity_hours': team_productivity_hours,
         'pie_chart_base64': pie_chart_base64,
         'year': year,

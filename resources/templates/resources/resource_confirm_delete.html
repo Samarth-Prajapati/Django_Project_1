@@ -1,0 +1,29 @@
+{% extends 'base.html' %} {% block title %}Delete Resource{% endblock %} {% block content %}
+<div class="container mt-5">
+  <h2>Confirm Delete</h2>
+  <p>
+    Are you sure you want to delete the resource
+    <strong>{{ resource.resource_name }}</strong>?
+  </p>
+
+  <div class="alert alert-warning">
+    <strong>Resource Details:</strong><br />
+    <strong>Name:</strong> {{ resource.resource_name }}<br />
+    <strong>Working Days:</strong> {{ resource.working_days }}<br />
+    <strong>Days Present:</strong> {{ resource.present_day }}<br />
+    <strong>Hours Present:</strong> {{ resource.present_hours }}<br />
+    <strong>Year:</strong> {{ resource.year }}<br />
+    <strong>Month:</strong> {{ resource.month }}
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">
+      <i class="fas fa-trash"></i> Yes, Delete
+    </button>
+    <a href="{% url 'resources:resource_list' %}" class="btn btn-secondary">
+      <i class="fas fa-arrow-left"></i> Cancel
+    </a>
+  </form>
+</div>
+{% endblock %}

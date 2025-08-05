@@ -156,7 +156,7 @@
             <td>{{ total_project_non_billable_hours }}</td>
           </tr>
           <tr class="fw-bold">
-            <td colspan="8">Team Productivity Percentage</td>
+            <td colspan="9">Team Productivity Percentage</td>
             <td>{{ team_productivity_percentage|floatformat:2 }}</td>
           </tr>
         </table>
@@ -164,10 +164,6 @@
       <!-- Team Productivity Percentage Pie Chart (matplotlib) -->
 {% if pie_chart_base64 %}
   <div class="my-4 text-center">
-    <h6 class="fw-bold">
-      Team Productivity Percentage<br>
-          
-    </h6>
     <img src="data:image/png;base64,{{ pie_chart_base64 }}" alt="Team Productivity Pie Chart" style="max-width: 400px;">
     <div class="mt-2">
       <span class="badge bg-success">Productive: {{ team_productivity_percentage|floatformat:2 }}%</span>
@@ -192,14 +188,15 @@
 
 <script>
 $(document).ready(function() {
-  {% for type, projects in grouped_projects.items %}
-    $('#projectTable_{{ forloop.counter }}').DataTable({
+  // Initialize DataTables for all project tables
+  $("table[id^='projectTable_']").each(function() {
+    $(this).DataTable({
       paging: true,
       searching: true,
       ordering: true,
       responsive: true
     });
-  {% endfor %}
+  });
 });
 </script>
     <!-- JS -->
