@@ -10,101 +10,119 @@
 </style>
 
 <div class="container-fluid">
-    <!-- Month Tabs: directly after navbar, full width -->
-    <div class="row">
-
-    </div>
     <!-- Main content grid: sidebar + content -->
     <div class="row">
-        <!-- Sidebar removed: year dropdown and filter button now in top bar -->
-        <div class="col-md-10">
-                <div class="tab-content-area mt-3" id="mainContent">
-                    <h2>Project & Resource Calendar</h2>
+        <!-- Main content area -->
+        <div class="col-md-12">
+            <div class="tab-content-area mt-3" id="mainContent">
+                <h2>Project & Resource Calendar</h2>
+                
+                <!-- Projects Section -->
+                <div class="projects-section">
                     {% if projects %}
-                    <h4>Projects ({{ projects|length }})</h4>
-                    <table class="table table-bordered table-striped">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Project Name</th>
-                                <th>Type</th>
-                                <th>Resources</th>
-                                <th>Billable Days</th>
-                                <th>Non-Billable Days</th>
-                                <th>Year</th>
-                                <th>Month</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for project in projects %}
-                            <tr>
-                                <td>{{ project.project_name }}</td>
-                                <td>{{ project.get_project_type_display }}</td>
-                                <td>
-                                  {% for resource in project.resources.all %}
-                                    {{ resource.resource_name }}{% if not forloop.last %}, {% endif %}
-                                  {% endfor %}
-                                </td>
-                                <td>{{ project.billable_days }}</td>
-                                <td>{{ project.non_billable_days }}</td>
-                                <td>{{ project.year }}</td>
-                                <td>{{ project.month }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                        <h4>Projects ({{ projects|length }})</h4>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Project Name</th>
+                                        <th>Type</th>
+                                        <th>Resources</th>
+                                        <th>Billable Days</th>
+                                        <th>Non-Billable Days</th>
+                                        <th>Year</th>
+                                        <th>Month</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for project in projects %}
+                                        <tr>
+                                            <td>{{ project.project_name }}</td>
+                                            <td>{{ project.get_project_type_display }}</td>
+                                            <td>
+                                                {% for resource in project.resources.all %}
+                                                    {{ resource.resource_name }}{% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                            <td>{{ project.billable_days }}</td>
+                                            <td>{{ project.non_billable_days }}</td>
+                                            <td>{{ project.year }}</td>
+                                            <td>{{ project.month }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     {% else %}
                         <p>No projects found for the selected year and month.</p>
                     {% endif %}
+                </div>
 
+                <!-- Resources Section -->
+                <div class="resources-section">
                     {% if resources %}
-                    <h4>Resources ({{ resources|length }})</h4>
-                    <table class="table table-bordered table-striped">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Name</th>
-                                <th>Working Days</th>
-                                <th>Days Present</th>
-                                <th>Hours Present</th>
-                                <th>Year</th>
-                                <th>Month</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for resource in resources %}
-                            <tr>
-                                <td>{{ resource.resource_name }}</td>
-                                <td>{{ resource.working_days }}</td>
-                                <td>{{ resource.present_day }}</td>
-                                <td>{{ resource.present_hours }}</td>
-                                <td>{{ resource.year }}</td>
-                                <td>{{ resource.month }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                        <h4>Resources ({{ resources|length }})</h4>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Working Days</th>
+                                        <th>Days Present</th>
+                                        <th>Hours Present</th>
+                                        <th>Year</th>
+                                        <th>Month</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for resource in resources %}
+                                        <tr>
+                                            <td>{{ resource.resource_name }}</td>
+                                            <td>{{ resource.working_days }}</td>
+                                            <td>{{ resource.present_day }}</td>
+                                            <td>{{ resource.present_hours }}</td>
+                                            <td>{{ resource.year }}</td>
+                                            <td>{{ resource.month }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     {% else %}
                         <p>No resources found for the selected year and month.</p>
                     {% endif %}
+                </div>
+            </div>
         </div>
     </div>
-    <!-- Month/Year selection moved to bottom -->
+    
+</div>
+<div class="container-fluid">
+    <!-- Month/Year selection section -->
     <div class="row mt-4">
-        <div class="col-12 d-flex align-items-center justify-content-center mb-3">
-            <select class="form-select me-3" style="width: 150px; max-width: 200px;" id="yearSelect" name="year">
-                {% for y in years %}
-                <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
-                {% endfor %}
-            </select>
-            <ul class="nav nav-tabs" id="monthTabs">
-                {% for m in months %}
-                    <li class="nav-item">
-                        <a class="nav-link {% if forloop.counter == month %}active{% endif %}"
-                           href="#" data-month="{{ forloop.counter }}">{{ m }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
+        <div class="col-12">
+            <div class="d-flex align-items-center justify-content-center mb-3">
+                <div class="year-selection">
+                    <select class="form-select" style="width: 150px; max-width: 200px;" id="yearSelect" name="year">
+                        {% for y in years %}
+                            <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="month-tabs">
+                    <ul class="nav nav-tabs" id="monthTabs">
+                        {% for m in months %}
+                            <li class="nav-item">
+                                <a class="nav-link {% if forloop.counter == month %}active{% endif %}"
+                                   href="#" data-month="{{ forloop.counter }}">{{ m }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
+</div>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     // Get year select
