@@ -16,6 +16,7 @@
                 <th>Hours Present</th>
                 <th>Year</th>
                 <th>Month</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -27,6 +28,10 @@
                 <td>{{ resource.present_hours }}</td>
                 <td>{{ resource.year }}</td>
                 <td>{{ resource.month }}</td>
+                <td>
+                  <a href="{% url 'resources:resource_update' resource.pk %}" class="btn btn-sm btn-primary">Edit</a>
+                  <a href="{% url 'resources:resource_delete' resource.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
             </tr>
             {% endfor %}
         </tbody>

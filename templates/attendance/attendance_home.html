@@ -38,7 +38,6 @@
                       <th>Working Days</th>
                       <th>Days Present</th>
                       <th>Hours Present</th>
-                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -49,15 +48,11 @@
                 <td>{{ resource.working_days }}</td>
                 <td>{{ resource.present_day }}</td>
                 <td>{{ resource.present_hours }}</td>
-                <td>
-                  <a href="{% url 'resources:resource_update' resource.pk %}" class="btn btn-sm btn-primary">Edit</a>
-                  <a href="{% url 'resources:resource_delete' resource.pk %}" class="btn btn-sm btn-danger">Delete</a>
-                </td>
               </tr>
               {% endfor %}
             {% else %}
               <tr>
-                <td colspan="5" class="text-center">No resources found.</td>
+                <td colspan="4" class="text-center">No resources found.</td>
               </tr>
             {% endif %}
                   </tbody>
@@ -67,10 +62,9 @@
                       <td>{{ total_working_days }}</td>
                       <td>{{ total_present_days }}</td>
                       <td>{{ total_present_hours }}</td>
-                      <td></td>
                     </tr>
                     <tr class="table-secondary fw-bold">
-                      <td colspan="4">Presence Percentage</td>
+                      <td colspan="3">Presence Percentage</td>
                       <td>{{ presence_percentage|floatformat:2 }}%</td>
                     </tr>
                   </tfoot>
@@ -106,6 +100,7 @@
                 <th>Project Name</th>
                 <th>Resources</th>
                 <th>Assigned Resource</th>
+                <th>POC</th>
                 <th>Days Present</th>
                 <th>Billable Days</th>
                 <th>Non-Billable Days</th>
@@ -123,6 +118,7 @@
                   {% endfor %}
                 </td>
                 <td>{% if proj.assign_project %}{{ proj.assign_project.resource_name }}{% else %}-{% endif %}</td>
+                <td>{% if proj.poc %}{{ proj.poc.resource_name }}{% else %}-{% endif %}</td>
                 <td>{{ proj.present_day }}</td>
                 <td>{{ proj.billable_days }}</td>
                 <td>{{ proj.non_billable_days }}</td>
@@ -133,7 +129,7 @@
             </tbody>
             <tfoot>
               <tr class="table-secondary fw-bold">
-                <td colspan="3">Total for {{ type }}</td>
+                <td colspan="4">Total for {{ type }}</td>
                 <td>{{ type_totals|dict_key:type|dict_key:"present_day" }}</td>
                 <td>{{ type_totals|dict_key:type|dict_key:"billable_days" }}</td>
                 <td>{{ type_totals|dict_key:type|dict_key:"non_billable_days" }}</td>
