@@ -6,13 +6,6 @@ from datetime import datetime
 from .models import Project
 from .forms import ProjectForm
 from resources.models import Resource
-from anytree import Node, RenderTree
-from anytree.exporter import DotExporter
-from io import BytesIO
-import graphviz
-import os
-# Set Graphviz path for Windows
-os.environ["PATH"] += os.pathsep + r"C:\Program Files\Graphviz\bin"
 import matplotlib
 matplotlib.use('Agg')  # Use non-interactive backend
 import matplotlib.pyplot as plt
@@ -65,8 +58,11 @@ def dashboard_home(request):
 def project_list(request):
     years = list(Project.active_objects.values_list('year', flat=True).distinct())
     months = list(Project.active_objects.values_list('month', flat=True).distinct())
-    selected_year = request.GET.get('year')
-    selected_month = request.GET.get('month')
+    # selected_year = request.GET.get('year')
+    # selected_month = request.GET.get('month')
+    selected_year = request.session.get('selected_year')
+    selected_month = request.session.get('selected_month')
+    month = request.session.get('selected_month')
     projects = Project.active_objects.all()  # Only show active projects
     if selected_year:
         projects = projects.filter(year=selected_year)
@@ -126,9 +122,13 @@ def project_tree_visualization(request):
     """Render the project tree visualization page."""
     return render(request, 'projects/project_tree.html')
 
+def project_canvas_tree_visualization(request):
+    """Render the interactive Canvas-based project tree visualization page."""
+    return render(request, 'projects/project_canvas_tree.html')
+
 
 def project_tree_html(request):
-    """Generate an HTML-based tree visualization that doesn't require Graphviz."""
+    """Generate an HTML-based tree visualization that doesn't require external dependencies."""
     try:
         projects = Project.objects.prefetch_related('resources', 'assign_project', 'poc').all()
         
@@ -213,12 +213,17 @@ def project_tree_html(request):
         return HttpResponse(error_html, content_type='text/html')
 
 def project_tree_view(request):
-    """API endpoint that returns project tree data as JSON."""
-    projects = Project.objects.prefetch_related('resources', 'assign_project', 'poc').all()
-    tree = []
+    """API endpoint that returns project tree data as JSON with a proper root node."""
+    # Filter out soft-deleted projects (only active projects)
+    projects = Project.objects.filter(is_active=True).prefetch_related('resources', 'assign_project', 'poc').all()
+    
+    # Create project nodes
+    project_nodes = []
     for project in projects:
         assign_project_name = project.assign_project.resource_name if project.assign_project else None
-        resource_names = [{"text": res.resource_name, "icon": "fas fa-user"} for res in project.resources.all()]
+        # Filter out soft-deleted resources
+        active_resources = [{"text": res.resource_name, "icon": "fas fa-user"} 
+                           for res in project.resources.filter(is_active=True)]
         poc_value = project.poc.resource_name if project.poc else None
        
         project_node = {
@@ -226,25 +231,34 @@ def project_tree_view(request):
             "icon": "fas fa-project-diagram",
             "children": [
                 {
-                    "text": f"Assigned Resource: {assign_project_name}",
+                    "text": f"📋 Assigned Resource: {assign_project_name}",
                     "icon": "fas fa-user-tie"
                 } if assign_project_name else None,
                 {
-                    "text": f"Resources ({len(resource_names)})",
+                    "text": f"👥 Resources ({len(active_resources)})",
                     "icon": "fas fa-users",
-                    "children": resource_names,
+                    "children": active_resources,
                     "opened": True
-                } if resource_names else None,
+                } if active_resources else None,
                 {
-                    "text": f"POC: {poc_value}",
+                    "text": f"🎯 POC: {poc_value}",
                     "icon": "fas fa-id-card"
                 } if poc_value else None
             ]
         }
         # Remove any None values from the children array
         project_node["children"] = [child for child in project_node["children"] if child is not None]
-        tree.append(project_node)
-    return JsonResponse(tree, safe=False)
+        project_nodes.append(project_node)
+    
+    # Create root node containing all projects
+    root_tree = [{
+        "text": "All Projects",
+        "icon": "fas fa-sitemap",
+        "opened": True,
+        "children": project_nodes
+    }]
+    
+    return JsonResponse(root_tree, safe=False)
 
 
 def project_list_api(request):
@@ -261,170 +275,18 @@ def project_list_api(request):
     return JsonResponse(project_list, safe=False)
 
 def project_tree_graphviz(request):
-    """Generate a Graphviz visualization of the project tree."""
-    try:
-        # Check if a specific project is requested
-        project_id = request.GET.get('project_id')
-        
-        if project_id:
-            # Single project visualization
-            try:
-                project = Project.objects.prefetch_related('resources', 'assign_project', 'poc').get(pk=project_id)
-                projects = [project]
-                root_label = f"Project: {project.project_name}"
-            except Project.DoesNotExist:
-                return HttpResponse("Project not found", status=404)
-        else:
-            # All projects visualization
-            projects = Project.objects.prefetch_related('resources', 'assign_project', 'poc').all()
-            root_label = "All Projects"
-        
-        # Create root node for the tree
-        root = Node(root_label)
-        
-        for project in projects:
-            # Create project node
-            if project_id:
-                # For single project, make project the root
-                project_node = root
-            else:
-                # For all projects, create project as child of root
-                project_node = Node(f"{project.project_name}\n({project.get_project_type_display()})", parent=root)
-            
-            # Add assigned resource node
-            if project.assign_project:
-                Node(f"📋 Assigned Resource:\n{project.assign_project.resource_name}", parent=project_node)
-            
-            # Add resources node with children
-            resources = project.resources.all()
-            if resources:
-                resources_node = Node(f"👥 Resources ({len(resources)})", parent=project_node)
-                for res in resources:
-                    Node(f"👤 {res.resource_name}", parent=resources_node)
-            
-            # Add POC node
-            if project.poc:
-                Node(f"🎯 POC:\n{project.poc.resource_name}", parent=project_node)
-        
-        # Generate Graphviz dot content with vertical layout and improved styling
-        dot_content = []
-        dot_content.append("digraph tree {")
-        dot_content.append('    rankdir=TB;')  # Top to Bottom (vertical)
-        dot_content.append('    node [shape=box, style="rounded,filled", fontname="Arial", fontsize=10];')
-        dot_content.append('    edge [fontname="Arial", fontsize=8];')
-        dot_content.append('    bgcolor=white;')
-        dot_content.append('    dpi=150;')  # Higher DPI for better quality
-        
-        # Define colors for different node types
-        colors = {
-            'root': '#3498db',      # Blue for root
-            'project': '#2ecc71',   # Green for projects
-            'assigned': '#f39c12',  # Orange for assigned resources
-            'resources': '#9b59b6', # Purple for resources group
-            'resource': '#1abc9c',  # Teal for individual resources
-            'poc': '#e74c3c'        # Red for POC
-        }
-        
-        # Manually create the dot notation with colors
-        node_counter = 0
-        node_map = {}
-        
-        def add_node_to_dot(node, parent_id=None, node_type='default'):
-            nonlocal node_counter
-            current_id = f"node{node_counter}"
-            node_map[node] = current_id
-            node_counter += 1
-            
-            # Escape node name for DOT format and handle newlines
-            node_name = str(node.name).replace('"', '\\"').replace('\n', '\\n')
-            
-            # Determine node type and color
-            if node.parent is None:
-                color = colors['root']
-                node_type = 'root'
-            elif '📋' in node.name:
-                color = colors['assigned']
-            elif '👥' in node.name:
-                color = colors['resources']
-            elif '👤' in node.name:
-                color = colors['resource']
-            elif '🎯' in node.name:
-                color = colors['poc']
-            elif node.parent and node.parent.parent is None:
-                color = colors['project']
-            else:
-                color = '#ecf0f1'  # Light gray for others
-            
-            # Add node with color and styling
-            dot_content.append(f'    {current_id} [label="{node_name}", fillcolor="{color}", fontcolor=white];')
-            
-            if parent_id:
-                dot_content.append(f'    {parent_id} -> {current_id} [color="#34495e", penwidth=1.5];')
-            
-            # Process children
-            for child in node.children:
-                add_node_to_dot(child, current_id)
-        
-        add_node_to_dot(root)
-        dot_content.append("}")
-        
-        # Create Graphviz source
-        dot_source = "\n".join(dot_content)
-        
-        try:
-            # Create and render the graph
-            graph = graphviz.Source(dot_source)
-            png_data = graph.pipe(format='png')
-            
-            # Return the image as HTTP response
-            response = HttpResponse(png_data, content_type='image/png')
-            response['Content-Disposition'] = 'inline; filename="project_tree.png"'
-            return response
-            
-        except (graphviz.ExecutableNotFound, FileNotFoundError) as e:
-            # Specific error for missing Graphviz executable
-            error_msg = (
-                "Graphviz executable not found. Please install Graphviz:\n"
-                "Windows: Download from https://graphviz.org/download/ and add to PATH\n"
-                "Or use: winget install graphviz\n\n"
-                f"Error details: {str(e)}\n\n"
-                "Fallback: Text representation of project tree:\n\n"
-            )
-            tree_text = [error_msg]
-            for pre, _, node in RenderTree(root):
-                tree_text.append(f"{pre}{node.name}")
-            
-            response = HttpResponse("\n".join(tree_text), content_type='text/plain')
-            response['Content-Disposition'] = 'inline; filename="project_tree_error.txt"'
-            return response
-            
-        except Exception as e:
-            # General error handling
-            error_msg = (
-                f"Failed to generate Graphviz diagram: {str(e)}\n\n"
-                "Fallback: Text representation of project tree:\n\n"
-            )
-            tree_text = [error_msg]
-            for pre, _, node in RenderTree(root):
-                tree_text.append(f"{pre}{node.name}")
-            
-            response = HttpResponse("\n".join(tree_text), content_type='text/plain')
-            response['Content-Disposition'] = 'inline; filename="project_tree_fallback.txt"'
-            return response
-            
-    except Exception as e:
-        # Fallback for any other errors (database, etc.)
-        error_msg = f"Error accessing project data: {str(e)}"
-        response = HttpResponse(error_msg, content_type='text/plain')
-        response['Content-Disposition'] = 'inline; filename="project_tree_error.txt"'
-        return response
+    """Legacy function - now redirects to Canvas-based tree visualization."""
+    from django.shortcuts import redirect
+    return redirect('projects:project_tree_visualization')
 
 
 def attendance_home(request):
     # Get year and month from GET params, fallback to current year/month
     now = datetime.now()
-    year_param = request.GET.get('year')
-    month_param = request.GET.get('month')
+    # year_param = request.GET.get('year')
+    # month_param = request.GET.get('month')
+    year_param = request.session.get('selected_year')
+    month_param = request.session.get('selected_month')
     
     try:
         year = int(year_param) if year_param else now.year

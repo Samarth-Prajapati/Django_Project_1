@@ -8,7 +8,7 @@ A comprehensive Django-based web application for tracking team productivity, man
 - **Project Tracking**: Manage projects with different types (Regular, Fixed Cost, Hourly)
 - **Time Tracking**: Monitor billable vs non-billable hours for accurate reporting
 - **Data Visualization**: Generate charts and graphs for productivity analysis
-- **Project Tree Structure**: Visualize project hierarchies using Graphviz
+- **Interactive Project Tree**: Modern Canvas-based interactive project hierarchy visualization with drag, zoom, and search capabilities
 - **Excel Import**: Bulk import team production data from Excel files
 - **Monthly/Yearly Reports**: Filter and view reports by specific time periods
 - **Dashboard Analytics**: Comprehensive dashboard with productivity insights
@@ -17,10 +17,9 @@ A comprehensive Django-based web application for tracking team productivity, man
 
 - **Backend**: Django 5.2.4
 - **Database**: SQLite3 (default, easily configurable for PostgreSQL/MySQL)
-- **Visualization**: Matplotlib, Graphviz
+- **Visualization**: Matplotlib, HTML5 Canvas
 - **Data Processing**: Pandas (for Excel imports)
-- **Tree Structures**: AnyTree library
-- **Frontend**: HTML templates with Django templating
+- **Frontend**: HTML5, CSS3, JavaScript with Bootstrap 5
 
 ## 📁 Project Structure
 

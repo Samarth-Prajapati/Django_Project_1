@@ -6,8 +6,21 @@ from django.contrib import messages
  
  
 def resource_list(request):
+    # resources = Resource.active_objects.all()  # Only show active resources
+    # return render(request, 'resources/resource_list.html', {'resources': resources, 'title': 'Resources'})
+    selected_year = request.session.get('selected_year')
+    selected_month = request.session.get('selected_month')
     resources = Resource.active_objects.all()  # Only show active resources
-    return render(request, 'resources/resource_list.html', {'resources': resources, 'title': 'Resources'})
+    if selected_year:
+        resources = resources.filter(year=selected_year)
+    if selected_month:
+        resources = resources.filter(month=selected_month)
+    return render(request, 'resources/resource_list.html', {
+        'resources': resources,
+        'title': 'Resources',
+        'selected_year': selected_year,
+        'selected_month': selected_month,
+    })
 
 def resource_create(request):
     # Get year/month from session (set by dashboard)

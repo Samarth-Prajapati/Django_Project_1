@@ -15,6 +15,6 @@ urlpatterns = [
     path("project-tree/", views.project_tree_view, name="project_tree"),
     path("project-list-api/", views.project_list_api, name="project_list_api"),
     path("project-tree-view/", views.project_tree_visualization, name="project_tree_visualization"),
-    path("project-tree-graphviz/", views.project_tree_graphviz, name="project_tree_graphviz"),
+    path("project-canvas-tree/", views.project_canvas_tree_visualization, name="project_canvas_tree_visualization"),
     path("project-tree-html/", views.project_tree_html, name="project_tree_html"),
 ]

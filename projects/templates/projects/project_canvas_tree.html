@@ -43,46 +43,46 @@
       }
 
       .controls-panel {
-        position: absolute;
+        position: fixed;
         top: 20px;
         left: 20px;
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
-        border-radius: 15px;
-        padding: 15px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        padding: 12px;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
         border: 1px solid rgba(255, 255, 255, 0.2);
-        width: 260px;
-        max-height: calc(100vh - 180px);
+        width: 250px;
+        max-height: calc(100vh - 200px);
         overflow-y: auto;
-        z-index: 100;
+        z-index: 1000;
       }
 
       .controls-panel h5 {
         color: #2c3e50;
-        margin-bottom: 12px;
+        margin-bottom: 8px;
         font-weight: 600;
-        font-size: 1.1em;
+        font-size: 0.95em;
       }
 
       .control-group {
-        margin-bottom: 12px;
+        margin-bottom: 8px;
       }
 
       .control-group label {
         display: block;
-        margin-bottom: 4px;
-        font-size: 0.85em;
+        margin-bottom: 3px;
+        font-size: 0.75em;
         color: #555;
         font-weight: 500;
       }
 
       .btn-control {
-        padding: 6px 12px;
+        padding: 4px 8px;
         margin: 1px;
-        border-radius: 6px;
+        border-radius: 5px;
         border: none;
-        font-size: 0.8em;
+        font-size: 0.7em;
         font-weight: 500;
         transition: all 0.3s ease;
         background: linear-gradient(45deg, #667eea, #764ba2);
@@ -96,57 +96,58 @@
 
       .zoom-controls {
         display: flex;
-        gap: 8px;
+        gap: 5px;
         align-items: center;
       }
 
       .zoom-level {
-        font-size: 0.85em;
+        font-size: 0.75em;
         color: #666;
-        min-width: 45px;
+        min-width: 35px;
         text-align: center;
       }
 
       .legend {
-        position: absolute;
+        position: fixed;
         bottom: 20px;
-        left: 20px;
+        right: 20px;
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
-        border-radius: 15px;
+        border-radius: 12px;
         padding: 12px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
         border: 1px solid rgba(255, 255, 255, 0.2);
-        width: 260px;
-        z-index: 99;
+        width: 220px;
+        z-index: 1000;
       }
 
       .legend h6 {
         color: #2c3e50;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         font-weight: 600;
-        font-size: 0.95em;
+        font-size: 0.85em;
       }
 
       .legend-item {
         display: flex;
         align-items: center;
-        margin-bottom: 4px;
-        font-size: 0.8em;
+        margin-bottom: 3px;
+        font-size: 0.7em;
       }
 
       .legend-color {
-        width: 14px;
-        height: 14px;
-        border-radius: 3px;
-        margin-right: 6px;
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+        margin-right: 5px;
         border: 1px solid rgba(0, 0, 0, 0.1);
       }
 
       .info-panel {
-        position: absolute;
-        top: 80px;
+        position: fixed;
+        top: 50%;
         right: 20px;
+        transform: translateY(-50%);
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
         border-radius: 15px;
@@ -155,7 +156,7 @@
         border: 1px solid rgba(255, 255, 255, 0.2);
         max-width: 280px;
         display: none;
-        z-index: 101;
+        z-index: 1001;
       }
 
       .info-panel h6 {
@@ -203,10 +204,10 @@
 
       .search-box input {
         width: 100%;
-        padding: 8px 35px 8px 12px;
+        padding: 6px 28px 6px 8px;
         border: 2px solid #e9ecef;
-        border-radius: 8px;
-        font-size: 0.9em;
+        border-radius: 6px;
+        font-size: 0.75em;
         transition: border-color 0.3s ease;
       }
 
@@ -217,14 +218,15 @@
 
       .search-box i {
         position: absolute;
-        right: 12px;
+        right: 8px;
         top: 50%;
         transform: translateY(-50%);
         color: #666;
+        font-size: 0.8em;
       }
 
       .home-button {
-        position: absolute;
+        position: fixed;
         top: 20px;
         right: 20px;
         background: rgba(255, 255, 255, 0.95);
@@ -238,7 +240,7 @@
         font-weight: 500;
         font-size: 0.9em;
         transition: all 0.3s ease;
-        z-index: 102;
+        z-index: 1002;
       }
 
       .home-button:hover {
@@ -253,30 +255,33 @@
           position: fixed;
           top: 10px;
           left: 10px;
-          width: calc(100vw - 20px);
-          max-width: 300px;
+          right: 10px;
+          width: auto;
+          max-width: none;
           max-height: 40vh;
           z-index: 1000;
         }
-        
+
         .legend {
           position: fixed;
           bottom: 10px;
           left: 10px;
-          width: calc(100vw - 20px);
-          max-width: 300px;
-          z-index: 999;
+          right: 10px;
+          width: auto;
+          max-width: none;
+          z-index: 1000;
         }
-        
+
         .info-panel {
           position: fixed;
           top: 50vh;
           right: 10px;
           left: 10px;
           max-width: none;
+          transform: translateY(-50%);
           z-index: 1001;
         }
-        
+
         .canvas-container {
           height: 100vh;
         }
@@ -305,11 +310,12 @@
       }
 
       @media (max-width: 480px) {
-        .controls-panel, .legend {
+        .controls-panel,
+        .legend {
           border-radius: 10px;
           padding: 10px;
         }
-        
+
         .home-button {
           padding: 6px 12px;
           font-size: 0.8em;
@@ -600,8 +606,8 @@
                 level
               ),
               icon: data.icon || "fas fa-circle",
-              expanded: data.opened !== false,
-              visible: true,
+              expanded: level === 0 ? true : data.opened !== false, // Root starts expanded
+              visible: level === 0 ? true : parent ? parent.expanded : false, // Only visible if parent is expanded
               opacity: 1,
             };
 
@@ -621,7 +627,20 @@
             processNode(rootData, 0);
           });
 
+          // After processing, ensure proper visibility state
+          this.initializeVisibility();
           this.calculateNodeSizes();
+        }
+
+        initializeVisibility() {
+          // Set initial visibility based on parent expansion state
+          this.nodes.forEach((node) => {
+            if (node.level === 0) {
+              node.visible = true; // Root is always visible
+            } else if (node.parent) {
+              node.visible = node.parent.expanded && node.parent.visible;
+            }
+          });
         }
 
         determineNodeColor(text, level) {
@@ -648,15 +667,17 @@
         layoutNodes() {
           if (this.nodes.length === 0) return;
 
-          const margin = { x: 100, y: 80 };
-          const levelHeight = 100;
-          const nodeSpacing = 20;
+          const margin = { x: 150, y: 100 };
+          const levelHeight = this.isVerticalLayout ? 120 : 200;
+          const nodeSpacing = this.isVerticalLayout ? 30 : 50;
 
-          // Group nodes by level
+          // Group nodes by level and only include visible nodes
           const levels = {};
           this.nodes.forEach((node) => {
-            if (!levels[node.level]) levels[node.level] = [];
-            levels[node.level].push(node);
+            if (node.visible) {
+              if (!levels[node.level]) levels[node.level] = [];
+              levels[node.level].push(node);
+            }
           });
 
           // Calculate positions for each level
@@ -673,6 +694,7 @@
                 node.targetX = currentX + node.width / 2;
                 node.targetY = parseInt(level) * levelHeight + margin.y;
               } else {
+                // Horizontal layout - increase spacing between levels
                 node.targetX = parseInt(level) * levelHeight + margin.x;
                 node.targetY = currentX + node.width / 2;
               }
@@ -849,14 +871,29 @@
 
             // Expand/collapse indicator for nodes with children
             if (node.children.length > 0) {
-              this.ctx.fillStyle = this.getTextColor(node.color);
-              this.ctx.font = "12px Arial";
-              const indicator = node.expanded ? "−" : "+";
-              this.ctx.fillText(
-                indicator,
-                node.x + node.width / 2 - 10,
-                node.y - node.height / 2 + 10
+              // Draw a circular background for the indicator
+              const indicatorSize = 16;
+              const indicatorX = node.x + node.width / 2 - indicatorSize / 2;
+              const indicatorY = node.y - node.height / 2 + indicatorSize / 2;
+
+              this.ctx.fillStyle = isHovered ? "#34495e" : "#95a5a6";
+              this.ctx.beginPath();
+              this.ctx.arc(
+                indicatorX,
+                indicatorY,
+                indicatorSize / 2,
+                0,
+                2 * Math.PI
               );
+              this.ctx.fill();
+
+              // Draw the + or - symbol
+              this.ctx.fillStyle = "#ffffff";
+              this.ctx.font = "bold 12px Arial";
+              this.ctx.textAlign = "center";
+              this.ctx.textBaseline = "middle";
+              const indicator = node.expanded ? "−" : "+";
+              this.ctx.fillText(indicator, indicatorX, indicatorY);
             }
 
             this.ctx.globalAlpha = 1;
@@ -1032,10 +1069,24 @@
 
         updateChildrenVisibility(node) {
           node.children.forEach((child) => {
-            child.visible = node.expanded;
-            if (!node.expanded || !child.expanded) {
-              this.updateChildrenVisibility(child);
+            if (node.expanded) {
+              child.visible = true;
+              // If child is also expanded, show its children
+              if (child.expanded) {
+                this.updateChildrenVisibility(child);
+              }
+            } else {
+              // Hide all descendants when node is collapsed
+              child.visible = false;
+              this.hideAllDescendants(child);
             }
+          });
+        }
+
+        hideAllDescendants(node) {
+          node.children.forEach((child) => {
+            child.visible = false;
+            this.hideAllDescendants(child);
           });
         }
 
@@ -1153,10 +1204,18 @@
           document.getElementById("searchInput").value = "";
           document.getElementById("infoPanel").style.display = "none";
 
-          // Reset all nodes to visible and full opacity
+          // Reset nodes to initial state: root expanded, children collapsed
           this.nodes.forEach((node) => {
-            node.visible = true;
-            node.expanded = true;
+            if (node.level === 0) {
+              node.visible = true;
+              node.expanded = true;
+            } else if (node.level === 1) {
+              node.visible = true;
+              node.expanded = false;
+            } else {
+              node.visible = false;
+              node.expanded = false;
+            }
             node.opacity = 1;
           });
 
