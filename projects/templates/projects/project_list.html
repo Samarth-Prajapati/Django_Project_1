@@ -22,7 +22,6 @@
                 {% endif %}
               </h1>
               <p class="lead mb-0">
-            
                 Manage and track all your projects efficiently
               </p>
             </div>
@@ -78,14 +77,14 @@
                     </div>
                   </td>
                   <td class="text-center">
-                    <span class="badge  text-dark fw-bold"
+                    <span class="badge text-dark fw-bold"
                       >{{ project.get_project_type_display }}</span
                     >
                   </td>
                   <td>
                     <div class="d-flex flex-wrap gap-1">
                       {% for resource in project.resources.all %}
-                      <span class="badge  text-dark fw-bold"
+                      <span class="badge text-dark fw-bold"
                         >{{ resource.resource_name }}</span
                       >
                       {% endfor %}
@@ -93,7 +92,7 @@
                   </td>
                   <td class="text-center">
                     {% if project.assign_project %}
-                    <span class="badge  text-dark fw-bold"
+                    <span class="badge text-dark fw-bold"
                       >{{ project.assign_project.resource_name }}</span
                     >
                     {% else %}
@@ -115,22 +114,22 @@
                     >
                   </td>
                   <td class="text-center">
-                    <span class="badge  text-dark fw-bold"
+                    <span class="badge text-dark fw-bold"
                       >{{ project.billable_days }}</span
                     >
                   </td>
                   <td class="text-center">
-                    <span class="badge  text-dark fw-bold"
+                    <span class="badge text-dark fw-bold"
                       >{{ project.non_billable_days }}</span
                     >
                   </td>
                   <td class="text-center">
-                    <span class="badge  text-dark fw-bold"
+                    <span class="badge text-dark fw-bold"
                       >{{ project.billable_hours }}</span
                     >
                   </td>
                   <td class="text-center">
-                    <span class="badge  text-dark fw-bold"
+                    <span class="badge text-dark fw-bold"
                       >{{ project.non_billable_hours }}</span
                     >
                   </td>
@@ -153,7 +152,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                  <td colspan="11" class="text-center py-5">
+                  <td colspan="12" class="text-center py-5">
                     <div class="empty-state">
                       <i
                         class="fas fa-project-diagram text-muted"
@@ -208,15 +207,18 @@
     margin-right: 0.5rem;
   }
 </style>
-
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/2.3.2/js/dataTables.bootstrap5.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables Init Script -->
 <script>
   $(document).ready(function () {
     $("#projectsTable").DataTable({
       responsive: true,
-      pageLength: 10,
+      pageLength: 25,
       lengthMenu: [
-        [5, 10, 25, 50],
-        [5, 10, 25, 50],
+        [10, 25, 50, 100, -1],
+        [10, 25, 50, 100, "All"],
       ],
       language: {
         search: "Search Projects:",
@@ -224,10 +226,25 @@
         info: "Showing _START_ to _END_ of _TOTAL_ projects",
         infoEmpty: "No projects to display",
         infoFiltered: "(filtered from _MAX_ total projects)",
+        paginate: {
+          first: "First",
+          last: "Last",
+          next: "Next",
+          previous: "Previous",
+        },
+        emptyTable: "No projects available in table",
+        zeroRecords: "No matching projects found",
       },
       columnDefs: [
-        { orderable: false, targets: [10] }, // Disable ordering on Actions column
+        { orderable: false, targets: [11] }, // Disable ordering on Actions column
+        { className: "text-center", targets: [0, 2, 6, 7, 8, 9, 10, 11] }, // Center align specific columns
+        { width: "15%", targets: [1] }, // Project name width
+        { width: "10%", targets: [11] }, // Actions width
       ],
+
+      order: [[1, "asc"]], // Default sort by project name
+      stateSave: true, // Remember user preferences
+      stateDuration: 60 * 60 * 24, // 24 hours
     });
   });
 </script>

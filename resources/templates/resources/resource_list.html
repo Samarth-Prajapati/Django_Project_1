@@ -6,7 +6,7 @@
       <div
         class="card border-0"
         style="
-          background: linear-gradient(135deg,  #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           color: white;
         "
       >
@@ -45,7 +45,7 @@
       <div class="card border-0">
         <div class="card-body p-4">
           <div class="table-responsive">
-            <table class="table table-hover align-middle" id="resourcesTable">
+            <table class="table table-hover align-middle" id="resourceTable2">
               <thead>
                 <tr class="text-center align-middle">
                   <th>*</th>
@@ -78,20 +78,22 @@
                     >
                   </td>
                   <td class="text-center">
-                    <span class="badge  text-dark fw-bold"
+                    <span class="badge text-dark fw-bold"
                       >{{ resource.present_day }}</span
                     >
                   </td>
                   <td class="text-center">
-                    <span class="badge  text-dark fw-bold"
+                    <span class="badge text-dark fw-bold"
                       >{{ resource.present_hours }}</span
                     >
                   </td>
                   <td class="text-center">
-                    <span class="badge text-dark fw-bold">{{ resource.year }}</span>
+                    <span class="badge text-dark fw-bold"
+                      >{{ resource.year }}</span
+                    >
                   </td>
                   <td class="text-center">
-                    <span class="badge  text-dark fw-bold"
+                    <span class="badge text-dark fw-bold"
                       >{{ resource.month }}</span
                     >
                   </td>
@@ -114,7 +116,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                  <td colspan="7" class="text-center py-5">
+                  <td colspan="8" class="text-center py-5">
                     <div class="empty-state">
                       <i
                         class="fas fa-users text-muted"
@@ -180,27 +182,45 @@
     margin-right: 0.5rem;
   }
 </style>
-
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/2.3.2/js/dataTables.bootstrap5.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables Init Script -->
 <script>
   $(document).ready(function () {
-    $("#resourcesTable").DataTable({
-      responsive: true,
-      pageLength: 10,
-      lengthMenu: [
-        [5, 10, 25, 50],
-        [5, 10, 25, 50],
-      ],
-      language: {
-        search: "Search Resources:",
-        lengthMenu: "Show _MENU_ resources per page",
-        info: "Showing _START_ to _END_ of _TOTAL_ resources",
-        infoEmpty: "No resources to display",
-        infoFiltered: "(filtered from _MAX_ total resources)",
-      },
-      columnDefs: [
-        { orderable: false, targets: [6] }, // Disable ordering on Actions column
-      ],
-    });
+    var resourceTableRows = $("#resourceTable2 tbody tr");
+    var hasData =
+      resourceTableRows.length > 0 &&
+      !resourceTableRows.first().find("td[colspan]").length;
+
+    if (hasData) {
+      $("#resourceTable2").DataTable({
+        responsive: true,
+        pageLength: 25,
+        lengthMenu: [
+          [10, 25, 50, 100, -1],
+          [10, 25, 50, 100, "All"],
+        ],
+        language: {
+          search: "Search Resources:",
+          lengthMenu: "Show _MENU_ resources per page",
+          info: "Showing _START_ to _END_ of _TOTAL_ resources",
+          infoEmpty: "No resources to display",
+          infoFiltered: "(filtered from _MAX_ total resources)",
+          paginate: {
+            first: "First",
+            last: "Last",
+            next: "Next",
+            previous: "Previous",
+          },
+          emptyTable: "No resources available in table",
+          zeroRecords: "No matching resources found",
+        },
+        order: [[0, "asc"]], // Default sort by resource name
+        stateSave: true,
+        stateDuration: 60 * 60 * 24,
+      });
+    }
   });
 </script>
 {% endblock %}
