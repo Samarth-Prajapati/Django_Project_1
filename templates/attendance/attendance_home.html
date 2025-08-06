@@ -325,15 +325,13 @@
                       {{ type_totals|dict_key:type|dict_key:"billable_days" }}
                     </td>
                     <td class="text-center">
-                      {{
-                      type_totals|dict_key:type|dict_key:"non_billable_days"}}
+                      {{ type_totals|dict_key:type|dict_key:"non_billable_days"}}
                     </td>
                     <td class="text-center">
                       {{ type_totals|dict_key:type|dict_key:"billable_hours" }}
                     </td>
                     <td class="text-center">
-                      {{
-                      type_totals|dict_key:type|dict_key:"non_billable_hours"}}
+                      {{ type_totals|dict_key:type|dict_key:"non_billable_hours"}}
                     </td>
                   </tr>
                 </tfoot>
@@ -389,8 +387,7 @@
                       </td>
                       <td class="text-center">
                         <span class="badge text-dark fw-bold fs-5"
-                          >{{
-                          team_productivity_percentage|floatformat:2}}%</span
+                          >{{ team_productivity_percentage|floatformat:2 }}%</span
                         >
                       </td>
                     </tr>
@@ -420,8 +417,7 @@
                 />
                 <div class="mt-3 d-flex justify-content-center gap-3">
                   <span class="badge bg-success fs-6 px-3 py-2">
-                    <i class="fas fa-check-circle me-2"></i>Productive: {{
-                    team_productivity_percentage|floatformat:2 }}%
+                    <i class="fas fa-check-circle me-2"></i>Productive: {{ team_productivity_percentage|floatformat:2 }}%
                   </span>
                   <span class="badge bg-danger fs-6 px-3 py-2">
                     <i class="fas fa-times-circle me-2"></i>Not Productive:
@@ -725,11 +721,6 @@
       }
     }
   </style>
-
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <!-- JS -->
-  <script src="https://cdn.datatables.net/2.3.2/js/dataTables.bootstrap5.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
 
   <script>
     $(document).ready(function () {
