@@ -9,14 +9,200 @@
       rel="stylesheet"
       crossorigin="anonymous"
     />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --dark-gradient: linear-gradient(135deg, #b18fe8 0%, #c950f59e 100%);
+        --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        --card-hover-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+        --border-radius: 12px;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+      }
+
+      .navbar {
+        background: var(--primary-gradient) !important;
+        box-shadow: var(--card-shadow);
+        border: none;
+        padding: 1rem 0;
+      }
+
+      .navbar-brand {
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: white !important;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .navbar-nav .nav-link {
+        color: rgba(255, 255, 255, 0.9) !important;
+        font-weight: 500;
+        margin: 0 0.5rem;
+        padding: 0.75rem 1rem !important;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .navbar-nav .nav-link:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: white !important;
+        transform: translateY(-2px);
+      }
+
+      .card {
+        border: none;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        background: white;
+      }
+
+      .card:hover {
+        box-shadow: var(--card-hover-shadow);
+        transform: translateY(-4px);
+      }
+
+      .btn {
+        border-radius: 8px;
+        font-weight: 500;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s ease;
+        border: none;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.875rem;
+      }
+
+      .btn-primary {
+        background: var(--primary-gradient);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+      }
+
+      .btn-success {
+        background: var(--success-gradient);
+        box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+      }
+
+      .btn-danger {
+        background: var(--secondary-gradient);
+        box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+      }
+
+      .table {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        background: white;
+      }
+
+      .table thead th {
+        background: var(--dark-gradient);
+        color: white;
+        font-weight: 600;
+        border: none;
+        padding: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.875rem;
+      }
+
+      .table tbody tr {
+        transition: all 0.3s ease;
+      }
+
+      .table tbody tr:hover {
+        background: rgba(102, 126, 234, 0.05);
+        transform: scale(1.01);
+      }
+
+      .table tbody td {
+        padding: 1rem;
+        border-color: rgba(0, 0, 0, 0.05);
+        vertical-align: middle;
+      }
+
+      .nav-tabs {
+        border: none;
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 0.5rem;
+        box-shadow: var(--card-shadow);
+      }
+
+      .nav-tabs .nav-link {
+        border: none;
+        border-radius: 8px;
+        margin: 0 0.25rem;
+        font-weight: 500;
+        color: #6c757d;
+        transition: all 0.3s ease;
+      }
+
+      .nav-tabs .nav-link.active {
+        background: var(--primary-gradient);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .nav-tabs .nav-link:hover {
+        background: rgba(102, 126, 234, 0.1);
+        border-color: transparent;
+      }
+
+      .fade-in {
+        animation: fadeIn 0.6s ease-in;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .gradient-text {
+        background: var(--primary-gradient);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 700;
+      }
+    </style>
   </head>
   <body>
     <!-- Header Navbar: present on all pages -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
       <div class="container-fluid">
-        <a class="navbar-brand" href="{% url 'home' %}"
-          >Team Production Report</a
+        <a
+          class="navbar-brand d-flex align-items-center"
+          href="{% url 'home' %}"
         >
+          <i class="fas fa-chart-line me-2"></i>
+          Team Production Report
+        </a>
         <button
           class="navbar-toggler"
           type="button"
@@ -29,39 +215,50 @@
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav">
+          <ul class="navbar-nav ms-auto">
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'projects:dashboard_home' %}"
-                >Dashboard</a
+              <a
+                class="nav-link d-flex align-items-center"
+                href="{% url 'projects:project_list' %}"
               >
+                <i class="fas fa-project-diagram me-2"></i>Projects
+              </a>
             </li>
+
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'projects:project_list' %}"
-                >Projects</a
+              <a
+                class="nav-link d-flex align-items-center"
+                href="{% url 'resources:resource_list' %}"
               >
+                <i class="fas fa-users me-2"></i>Resources
+              </a>
             </li>
             <li class="nav-item">
               <a
-                class="nav-link"
+                class="nav-link d-flex align-items-center"
+                href="{% url 'projects:attendance_home' %}"
+              >
+                <i class="fas fa-calendar-check me-2"></i>Attendance
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link d-flex align-items-center"
                 href="{% url 'projects:project_canvas_tree_visualization' %}"
-                >Project Tree</a
               >
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'projects:attendance_home' %}"
-                >Attendance</a
-              >
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'resources:resource_list' %}"
-                >Resources</a
-              >
+                <i class="fas fa-sitemap me-2"></i>Project Tree
+              </a>
             </li>
           </ul>
         </div>
       </div>
     </nav>
-    {% block content %}{% endblock %}
+
+    <!-- Main Content -->
+    <main style="margin-top: 100px" class="fade-in">
+      {% block content %}{% endblock %}
+    </main>
+
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
       crossorigin="anonymous"

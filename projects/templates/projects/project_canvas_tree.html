@@ -1,53 +1,37 @@
-<!DOCTYPE html>
+{% extends 'base.html' %}
 {% load static %}
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Interactive Canvas Project Tree</title>
-    <!-- Bootstrap CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <!-- Font Awesome for icons -->
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-      rel="stylesheet"
-    />
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        overflow: hidden;
-      }
 
-      .canvas-container {
-        position: relative;
-        width: 100vw;
-        height: 100vh;
-        overflow: hidden;
-        cursor: grab;
-      }
+{% block title %}Canvas Project Tree{% endblock %}
 
-      .canvas-container.dragging {
-        cursor: grabbing;
-      }
+{% block content %}
+<style>
+  .canvas-container {
+    position: relative;
+    width: 100%;
+    height: 80vh;
+    overflow: hidden;
+    cursor: grab;
+    background: radial-gradient(circle at center, #f8f9fa 0%, #e9ecef 100%);
+    box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin-top: 20px;
+  }
 
-      #treeCanvas {
-        display: block;
-        background: radial-gradient(circle at center, #f8f9fa 0%, #e9ecef 100%);
-        box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.1);
-      }
+  .canvas-container.dragging {
+    cursor: grabbing;
+  }
 
-      .controls-panel {
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
+  #treeCanvas {
+    display: block;
+    border-radius: 8px;
+  }
+
+  .controls-panel {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
         border-radius: 12px;
         padding: 12px;
         box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
@@ -108,9 +92,9 @@
       }
 
       .legend {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
         border-radius: 12px;
@@ -144,9 +128,9 @@
       }
 
       .info-panel {
-        position: fixed;
+        position: absolute;
         top: 50%;
-        right: 20px;
+        right: 10px;
         transform: translateY(-50%);
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
@@ -226,9 +210,9 @@
       }
 
       .home-button {
-        position: fixed;
-        top: 20px;
-        right: 20px;
+        position: absolute;
+        top: 10px;
+        right: 10px;
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
         border-radius: 12px;
@@ -252,7 +236,7 @@
 
       @media (max-width: 768px) {
         .controls-panel {
-          position: fixed;
+          position: absolute;
           top: 10px;
           left: 10px;
           right: 10px;
@@ -263,7 +247,7 @@
         }
 
         .legend {
-          position: fixed;
+          position: absolute;
           bottom: 10px;
           left: 10px;
           right: 10px;
@@ -273,7 +257,7 @@
         }
 
         .info-panel {
-          position: fixed;
+          position: absolute;
           top: 50vh;
           right: 10px;
           left: 10px;
@@ -287,7 +271,7 @@
         }
 
         .home-button {
-          position: fixed;
+          position: absolute;
           top: 10px;
           right: 10px;
           z-index: 1002;
@@ -322,22 +306,26 @@
         }
       }
     </style>
-  </head>
-  <body>
-    <div class="canvas-container" id="canvasContainer">
-      <!-- Loading Overlay -->
-      <div class="loading-overlay" id="loadingOverlay">
-        <div class="spinner"></div>
-        <p style="margin-top: 20px; color: #666">Loading project tree...</p>
-      </div>
 
-      <!-- Main Canvas -->
-      <canvas id="treeCanvas"></canvas>
+<div class="container-fluid mt-3">
 
-      <!-- Home Button -->
-      <a href="{% url 'projects:dashboard_home' %}" class="home-button">
-        <i class="fas fa-home"></i> Back to Dashboard
-      </a>
+  
+  <div class="row">
+    <div class="col-12">
+      <div class="canvas-container" id="canvasContainer">
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+          <div class="spinner"></div>
+          <p style="margin-top: 20px; color: #666">Loading project tree...</p>
+        </div>
+
+        <!-- Main Canvas -->
+        <canvas id="treeCanvas"></canvas>
+
+        <!-- Home Button -->
+        <a href="{% url 'projects:dashboard_home' %}" class="home-button">
+          <i class="fas fa-home"></i> Back to Dashboard
+        </a>
 
       <!-- Controls Panel -->
       <div class="controls-panel">
@@ -445,6 +433,9 @@
         </div>
       </div>
     </div>
+    </div>
+  </div>
+</div>
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -1247,5 +1238,7 @@
         );
       });
     </script>
-  </body>
-</html>
+    </div>
+  </div>
+</div>
+{% endblock %}

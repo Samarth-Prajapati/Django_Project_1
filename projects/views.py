@@ -35,10 +35,10 @@ def dashboard_home(request):
         month = int(month_param) if month_param else now.month
     except ValueError:
         month = now.month
-    # Store in session for resource creation
-    if year_param and month_param:
-        request.session['selected_year'] = year
-        request.session['selected_month'] = month
+    
+    # Always store the selected year and month in session (either from params or current)
+    request.session['selected_year'] = year
+    request.session['selected_month'] = month
     # Filter projects/resources by year and month (month as number)
     from resources.models import Resource
     from .models import Project
@@ -56,41 +56,48 @@ def dashboard_home(request):
     })
 
 def project_list(request):
-    years = list(Project.active_objects.values_list('year', flat=True).distinct())
-    months = list(Project.active_objects.values_list('month', flat=True).distinct())
-    # selected_year = request.GET.get('year')
-    # selected_month = request.GET.get('month')
+    # Get year and month from session (set by home page)
     selected_year = request.session.get('selected_year')
     selected_month = request.session.get('selected_month')
-    month = request.session.get('selected_month')
+    
+    # If no session values, redirect to home page to set them
+    if not selected_year or not selected_month:
+        return redirect('dashboard_home')
+    
     projects = Project.active_objects.all()  # Only show active projects
-    if selected_year:
-        projects = projects.filter(year=selected_year)
-    if selected_month:
-        projects = projects.filter(month=selected_month)
+    projects = projects.filter(year=selected_year, month=selected_month)
+    
     return render(request, 'projects/project_list.html', {
         'projects': projects,
-        'years': years,
-        'months': months,
         'selected_year': selected_year,
         'selected_month': selected_month,
     })
 
 
 def project_create(request):
+    year = request.session.get('selected_year')
+    month = request.session.get('selected_month')
+    
+    # If no session values, redirect to home page to set them
+    if not year or not month:
+        return redirect('dashboard_home')
+        
     if request.method == 'POST':
         project_form = ProjectForm(request.POST)
         if project_form.is_valid():
-            project_form.save()
+            project = project_form.save(commit=False)
+            project.year = year
+            project.month = month
+            project.save()
             return redirect('projects:project_list')
     else:
-        year = request.session.get('selected_year')
-        month = request.session.get('selected_month')
         project_form = ProjectForm(initial={'year': year, 'month': month})
 
     return render(request, 'projects/project_form.html', {
         'form': project_form,
-        'title': 'Create Project'
+        'title': 'Create Project',
+        'year': year,
+        'month': month
     })
 
 
@@ -130,7 +137,16 @@ def project_canvas_tree_visualization(request):
 def project_tree_html(request):
     """Generate an HTML-based tree visualization that doesn't require external dependencies."""
     try:
-        projects = Project.objects.prefetch_related('resources', 'assign_project', 'poc').all()
+        # Get year and month from session
+        selected_year = request.session.get('selected_year')
+        selected_month = request.session.get('selected_month')
+        
+        projects = Project.objects.prefetch_related('resources', 'assign_project', 'poc')
+        
+        if selected_year and selected_month:
+            projects = projects.filter(year=selected_year, month=selected_month)
+        
+        projects = projects.all()
         
         # Create HTML tree structure
         html_tree = ['<div class="tree-container">']
@@ -214,8 +230,17 @@ def project_tree_html(request):
 
 def project_tree_view(request):
     """API endpoint that returns project tree data as JSON with a proper root node."""
-    # Filter out soft-deleted projects (only active projects)
-    projects = Project.objects.filter(is_active=True).prefetch_related('resources', 'assign_project', 'poc').all()
+    # Get year and month from session
+    selected_year = request.session.get('selected_year')
+    selected_month = request.session.get('selected_month')
+    
+    # Filter out soft-deleted projects (only active projects) and by session year/month
+    projects = Project.objects.filter(is_active=True).prefetch_related('resources', 'assign_project', 'poc')
+    
+    if selected_year and selected_month:
+        projects = projects.filter(year=selected_year, month=selected_month)
+    
+    projects = projects.all()
     
     # Create project nodes
     project_nodes = []
@@ -263,7 +288,16 @@ def project_tree_view(request):
 
 def project_list_api(request):
     """API endpoint that returns a list of projects for selection."""
-    projects = Project.objects.all().values('id', 'project_name', 'project_type')
+    # Get year and month from session
+    selected_year = request.session.get('selected_year')
+    selected_month = request.session.get('selected_month')
+    
+    projects = Project.objects.all()
+    
+    if selected_year and selected_month:
+        projects = projects.filter(year=selected_year, month=selected_month)
+    
+    projects = projects.values('id', 'project_name', 'project_type')
     project_list = [
         {
             'id': p['id'],
@@ -281,30 +315,17 @@ def project_tree_graphviz(request):
 
 
 def attendance_home(request):
-    # Get year and month from GET params, fallback to current year/month
-    now = datetime.now()
-    # year_param = request.GET.get('year')
-    # month_param = request.GET.get('month')
-    year_param = request.session.get('selected_year')
-    month_param = request.session.get('selected_month')
+    # Get year and month from session (set by home page)
+    year = request.session.get('selected_year')
+    month = request.session.get('selected_month')
     
-    try:
-        year = int(year_param) if year_param else now.year
-    except (ValueError, TypeError):
-        year = now.year
+    # If no session values, redirect to home page to set them
+    if not year or not month:
+        return redirect('dashboard_home')
     
-    try:
-        month = int(month_param) if month_param else now.month
-    except (ValueError, TypeError):
-        month = now.month
-    
-    # Filter by year and month if provided
-    resources = Resource.active_objects.all()  # Only active resources
-    projects = Project.active_objects.prefetch_related('resources').all()  # Only active projects
-    
-    if year_param and month_param:
-        resources = resources.filter(year=year, month=month)
-        projects = projects.filter(year=year, month=month)
+    # Filter by year and month from session
+    resources = Resource.active_objects.filter(year=year, month=month)  # Only active resources
+    projects = Project.active_objects.prefetch_related('resources').filter(year=year, month=month)  # Only active projects
 
     # Totals for resource
     total_working_days = sum(r.working_days for r in resources if r.working_days)
@@ -405,11 +426,6 @@ def attendance_home(request):
         'pie_chart_base64': pie_chart_base64,
         'year': year,
         'month': month,
-        'years': list(range(2020, 2031)),
-        'months': [
-            'January', 'February', 'March', 'April', 'May', 'June',
-            'July', 'August', 'September', 'October', 'November', 'December'
-        ],
     }
 
     return render(request, 'attendance/attendance_home.html', context)

@@ -1,25 +1,97 @@
 # Django Team Production Report
 
-A comprehensive Django-based web application for tracking team productivity, managing project resources, and generating detailed production reports with visualization capabilities.
+A comprehensive Django-based web application for tracking team productivity, managing project resources, and generating detailed production reports with interactive visualizations.
 
-## 📋 Features
+## ✨ Key Features
+
+### 📊 **Analytics & Reporting**
 
 - **Resource Management**: Track team members' working days, present hours, and productivity metrics
 - **Project Tracking**: Manage projects with different types (Regular, Fixed Cost, Hourly)
 - **Time Tracking**: Monitor billable vs non-billable hours for accurate reporting
-- **Data Visualization**: Generate charts and graphs for productivity analysis
-- **Interactive Project Tree**: Modern Canvas-based interactive project hierarchy visualization with drag, zoom, and search capabilities
-- **Excel Import**: Bulk import team production data from Excel files
-- **Monthly/Yearly Reports**: Filter and view reports by specific time periods
 - **Dashboard Analytics**: Comprehensive dashboard with productivity insights
+- **Monthly/Yearly Reports**: Filter and view reports by specific time periods
+
+### 🎯 **Visualizations**
+
+- **Interactive Project Tree**: Modern Canvas-based interactive project hierarchy with drag, zoom, and search
+- **Productivity Charts**: Dynamic pie charts showing team productivity percentages
+- **Real-time Data**: Live updates from database without page refresh
+
+### 📤 **Data Management**
+
+- **Excel Import**: Bulk import team production data from Excel files
+- **CRUD Operations**: Full create, read, update, delete functionality for projects and resources
+- **Data Validation**: Built-in validation for consistent data entry
 
 ## 🛠️ Technology Stack
 
 - **Backend**: Django 5.2.4
-- **Database**: SQLite3 (default, easily configurable for PostgreSQL/MySQL)
+- **Database**: SQLite3 (configurable for PostgreSQL/MySQL)
+- **Frontend**: HTML5, CSS3, JavaScript ES6+
+- **UI Framework**: Bootstrap 5
 - **Visualization**: Matplotlib, HTML5 Canvas
 - **Data Processing**: Pandas (for Excel imports)
-- **Frontend**: HTML5, CSS3, JavaScript with Bootstrap 5
+- **Icons**: Font Awesome 6
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Python 3.8+
+- pip (Python package manager)
+
+### Installation
+
+1. **Clone the repository**
+
+   ```bash
+   git clone <repository-url>
+   cd Django-ProductReport-source_django
+   ```
+
+2. **Create virtual environment**
+
+   ```bash
+   python -m venv venv
+
+   # Windows
+   venv\Scripts\activate
+
+   # macOS/Linux
+   source venv/bin/activate
+   ```
+
+3. **Install dependencies**
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Environment setup**
+
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+
+5. **Database setup**
+
+   ```bash
+   python manage.py makemigrations
+   python manage.py migrate
+   python manage.py createsuperuser
+   ```
+
+6. **Run the development server**
+
+   ```bash
+   python manage.py runserver
+   ```
+
+7. **Access the application**
+   - Main Dashboard: http://127.0.0.1:8000/
+   - Admin Panel: http://127.0.0.1:8000/admin/
 
 ## 📁 Project Structure
 

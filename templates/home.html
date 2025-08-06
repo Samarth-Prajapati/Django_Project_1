@@ -1,122 +1,165 @@
 {% extends "base.html" %}
 {% block content %}
-<style>
-    body { background-color: #f8f9fa; }
-    .sidebar { min-height: 100vh; background-color: #343a40; color: white; }
-    .sidebar .nav-link { color: white; }
-    .sidebar .nav-link:hover { background-color: #495057; }
-    .tab-content-area { padding: 20px; background-color: white; min-height: 80vh; border-radius: 8px; }
-    .navbar-brand { font-weight: bold; }
-</style>
-
-<div class="container-fluid">
-    <!-- Main content grid: sidebar + content -->
-    <div class="row">
-        <!-- Main content area -->
-        <div class="col-md-12">
-            <div class="tab-content-area mt-3" id="mainContent">
-                <h2>Project & Resource Calendar</h2>
-                
-                <!-- Projects Section -->
-                <div class="projects-section">
-                    {% if projects %}
-                        <h4>Projects ({{ projects|length }})</h4>
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-striped">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>Project Name</th>
-                                        <th>Type</th>
-                                        <th>Resources</th>
-                                        <th>Billable Days</th>
-                                        <th>Non-Billable Days</th>
-                                        <th>Year</th>
-                                        <th>Month</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for project in projects %}
-                                        <tr>
-                                            <td>{{ project.project_name }}</td>
-                                            <td>{{ project.get_project_type_display }}</td>
-                                            <td>
-                                                {% for resource in project.resources.all %}
-                                                    {{ resource.resource_name }}{% if not forloop.last %}, {% endif %}
-                                                {% endfor %}
-                                            </td>
-                                            <td>{{ project.billable_days }}</td>
-                                            <td>{{ project.non_billable_days }}</td>
-                                            <td>{{ project.year }}</td>
-                                            <td>{{ project.month }}</td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+<div class="container-fluid px-4">
+    <!-- Hero Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <div class="card-body text-center py-5">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h1 class="display-4 fw-bold mb-3">
+                                <i class="fas fa-chart-line me-3"></i>
+                                Project & Resource Dashboard
+                            </h1>
+                            <p class="lead mb-4">Comprehensive analytics and insights for your team's productivity</p>
+                            <div class="d-flex justify-content-center gap-3">
+                                <a href="{% url 'projects:project_list' %}" class="btn btn-light btn-lg">
+                                    <i class="fas fa-project-diagram me-2"></i>View Projects
+                                </a>
+                                <a href="{% url 'resources:resource_list' %}" class="btn btn-outline-light btn-lg">
+                                    <i class="fas fa-users me-2"></i>Manage Resources
+                                </a>
+                            </div>
                         </div>
-                    {% else %}
-                        <p>No projects found for the selected year and month.</p>
-                    {% endif %}
-                </div>
-
-                <!-- Resources Section -->
-                <div class="resources-section">
-                    {% if resources %}
-                        <h4>Resources ({{ resources|length }})</h4>
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-striped">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Working Days</th>
-                                        <th>Days Present</th>
-                                        <th>Hours Present</th>
-                                        <th>Year</th>
-                                        <th>Month</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for resource in resources %}
-                                        <tr>
-                                            <td>{{ resource.resource_name }}</td>
-                                            <td>{{ resource.working_days }}</td>
-                                            <td>{{ resource.present_day }}</td>
-                                            <td>{{ resource.present_hours }}</td>
-                                            <td>{{ resource.year }}</td>
-                                            <td>{{ resource.month }}</td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                        <div class="col-md-6">
+                            <div class="text-center">
+                                <i class="fas fa-chart-pie" style="font-size: 8rem; opacity: 0.3;"></i>
+                            </div>
                         </div>
-                    {% else %}
-                        <p>No resources found for the selected year and month.</p>
-                    {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    
-</div>
-<div class="container-fluid">
-    <!-- Month/Year selection section -->
-    <div class="row mt-4">
+
+    <!-- Current Selection Info -->
+    <div class="row mb-4">
         <div class="col-12">
-            <div class="d-flex align-items-center justify-content-center mb-3">
-                <div class="year-selection">
-                    <select class="form-select" style="width: 150px; max-width: 200px;" id="yearSelect" name="year">
-                        {% for y in years %}
-                            <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
-                        {% endfor %}
-                    </select>
+            <div class="card border-0">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h4 class="mb-3">
+                                <i class="fas fa-filter text-primary me-2"></i>
+                                Current Selection
+                            </h4>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="badge bg-primary fs-6 px-3 py-2">
+                                    <i class="fas fa-calendar me-2"></i>Year {{ year }}
+                                </div>
+                                <div class="badge bg-primary fs-6 px-3 py-2">
+                                    <i class="fas fa-calendar-alt me-2"></i>Month {{ month }}
+                                </div>
+                            </div>
+                            <small class="text-muted mt-2 d-block">
+                                <i class="fas fa-info-circle me-1"></i>
+                                This filter applies to all sections: Projects, Resources, and Attendance
+                            </small>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="quick-stats">
+                                <p class="mb-1 text-muted">Quick Access</p>
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <a href="{% url 'projects:attendance_home' %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-calendar-check me-1"></i>Attendance
+                                    </a>
+                                    <a href="{% url 'projects:project_canvas_tree_visualization' %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-sitemap me-1"></i>Tree View
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="month-tabs">
-                    <ul class="nav nav-tabs" id="monthTabs">
-                        {% for m in months %}
-                            <li class="nav-item">
-                                <a class="nav-link {% if forloop.counter == month %}active{% endif %}"
-                                   href="#" data-month="{{ forloop.counter }}">{{ m }}</a>
-                            </li>
-                        {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Month/Year Selection Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0">
+                <div class="card-header bg-transparent border-0 pb-0">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-calendar-alt text-primary me-2"></i>
+                        Time Period Selection
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <!-- Year Selection -->
+                        <div class="col-md-3 mb-3">
+                            <label for="yearSelect" class="form-label fw-semibold">
+                                <i class="fas fa-calendar me-2"></i>Select Year
+                            </label>
+                            <select class="form-select form-select-lg" id="yearSelect" name="year">
+                                {% for y in years %}
+                                    <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Month Selection -->
+                        <div class="col-md-9 mb-3">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-calendar-day me-2"></i>Select Month
+                            </label>
+                            <div class="month-tabs">
+                                <div class="nav nav-pills d-flex flex-wrap gap-3" id="monthTabs">
+                                    {% for m in months %}
+                                        <a class="nav-link {% if forloop.counter == month %}active{% endif %} month-pill"
+                                           href="#" data-month="{{ forloop.counter }}">
+                                            {{ m }}
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .month-pill {
+        border-radius: 25px !important;
+        padding: 0.75rem 1.5rem !important;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+    }
+    
+    .month-pill:hover {
+        background: rgba(102, 126, 234, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .month-pill.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        border-color: #667eea;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .quick-stats .btn {
+        border-radius: 20px;
+        font-size: 0.75rem;
+    }
+
+    .badge {
+        border-radius: 15px;
+    }
+
+    .card {
+        backdrop-filter: blur(10px);
+    }
+</style>
                     </ul>
                 </div>
             </div>

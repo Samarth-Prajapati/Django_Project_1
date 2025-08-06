@@ -1,40 +1,204 @@
-{% extends "base.html" %}
-{% block content %}
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="mb-0">All Resources</h2>
-        <a href="{% url 'resources:resource_create' %}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Add Resource
-        </a>
+{% extends "base.html" %} {% block content %}
+<div class="container-fluid px-4">
+  <!-- Header Section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div
+        class="card border-0"
+        style="
+          background: linear-gradient(135deg,  #667eea 0%, #764ba2 100%);
+          color: white;
+        "
+      >
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h1 class="display-6 fw-bold mb-2">
+                <i class="fas fa-users me-3"></i>
+                Resources Management {% if selected_year and selected_month %}
+                <small class="opacity-75 fs-4"
+                  >({{ selected_year }} - Month {{ selected_month }})</small
+                >
+                {% endif %}
+              </h1>
+              <p class="lead mb-0">
+                Manage team members and track their activities
+              </p>
+            </div>
+            <div class="col-md-4 text-end">
+              <a
+                href="{% url 'resources:resource_create' %}"
+                class="btn btn-light btn-lg"
+              >
+                <i class="fas fa-user-plus me-2"></i>Add Resource
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <table class="table table-bordered table-striped">
-        <thead class="table-dark">
-            <tr>
-                <th>Name</th>
-                <th>Working Days</th>
-                <th>Days Present</th>
-                <th>Hours Present</th>
-                <th>Year</th>
-                <th>Month</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for resource in resources %}
-            <tr>
-                <td>{{ resource.resource_name }}</td>
-                <td>{{ resource.working_days }}</td>
-                <td>{{ resource.present_day }}</td>
-                <td>{{ resource.present_hours }}</td>
-                <td>{{ resource.year }}</td>
-                <td>{{ resource.month }}</td>
-                <td>
-                  <a href="{% url 'resources:resource_update' resource.pk %}" class="btn btn-sm btn-primary">Edit</a>
-                  <a href="{% url 'resources:resource_delete' resource.pk %}" class="btn btn-sm btn-danger">Delete</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+  </div>
+
+  <!-- Resources Table -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card border-0">
+        <div class="card-body p-4">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle" id="resourcesTable">
+              <thead>
+                <tr class="text-center align-middle">
+                  <th><i class="fas fa-user me-2"></i>Name</th>
+                  <th><i class="fas fa-calendar-week me-2"></i>Working Days</th>
+                  <th>
+                    <i class="fas fa-calendar-check me-2"></i>Days Present
+                  </th>
+                  <th><i class="fas fa-clock me-2"></i>Hours Present</th>
+                  <th><i class="fas fa-calendar-alt me-2"></i>Year</th>
+                  <th><i class="fas fa-calendar me-2"></i>Month</th>
+                  <th><i class="fas fa-cogs me-2"></i>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for resource in resources %}
+                <tr class="resource-row">
+                  <td class="fw-semibold">
+                    <div class="d-flex align-items-center">
+                      <div class="avatar-circle me-3">
+                        {{ resource.resource_name|first|upper }}
+                      </div>
+                      {{ resource.resource_name }}
+                    </div>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge text-dark fw-bold"
+                      >{{ resource.working_days }}</span
+                    >
+                  </td>
+                  <td class="text-center">
+                    <span class="badge  text-dark fw-bold"
+                      >{{ resource.present_day }}</span
+                    >
+                  </td>
+                  <td class="text-center">
+                    <span class="badge  text-dark fw-bold"
+                      >{{ resource.present_hours }}</span
+                    >
+                  </td>
+                  <td class="text-center">
+                    <span class="badge text-dark fw-bold">{{ resource.year }}</span>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge  text-dark fw-bold"
+                      >{{ resource.month }}</span
+                    >
+                  </td>
+                  <td class="text-center">
+                    <div class="btn-group" role="group">
+                      <a
+                        href="{% url 'resources:resource_update' resource.pk %}"
+                        class="btn btn-sm btn-outline-primary"
+                      >
+                        <i class="fas fa-edit me-1"></i>Edit
+                      </a>
+                      <a
+                        href="{% url 'resources:resource_delete' resource.pk %}"
+                        class="btn btn-sm btn-outline-danger"
+                      >
+                        <i class="fas fa-trash me-1"></i>Delete
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="7" class="text-center py-5">
+                    <div class="empty-state">
+                      <i
+                        class="fas fa-users text-muted"
+                        style="font-size: 3rem"
+                      ></i>
+                      <p class="text-muted mt-3 mb-0">
+                        No resources available.
+                      </p>
+                      <a
+                        href="{% url 'resources:resource_create' %}"
+                        class="btn btn-primary mt-3"
+                      >
+                        <i class="fas fa-user-plus me-2"></i>Add Your First
+                        Resource
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
+<!-- Custom Styles -->
+<style>
+  .avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+  }
+
+  .resource-row:hover {
+    background: rgba(79, 172, 254, 0.05);
+    transform: scale(1.01);
+  }
+
+  .empty-state {
+    padding: 2rem;
+  }
+
+  .badge {
+    border-radius: 15px;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .btn-group .btn {
+    border-radius: 8px;
+  }
+
+  .btn-group .btn:not(:last-child) {
+    margin-right: 0.5rem;
+  }
+</style>
+
+<script>
+  $(document).ready(function () {
+    $("#resourcesTable").DataTable({
+      responsive: true,
+      pageLength: 10,
+      lengthMenu: [
+        [5, 10, 25, 50],
+        [5, 10, 25, 50],
+      ],
+      language: {
+        search: "Search Resources:",
+        lengthMenu: "Show _MENU_ resources per page",
+        info: "Showing _START_ to _END_ of _TOTAL_ resources",
+        infoEmpty: "No resources to display",
+        infoFiltered: "(filtered from _MAX_ total resources)",
+      },
+      columnDefs: [
+        { orderable: false, targets: [6] }, // Disable ordering on Actions column
+      ],
+    });
+  });
+</script>
 {% endblock %}

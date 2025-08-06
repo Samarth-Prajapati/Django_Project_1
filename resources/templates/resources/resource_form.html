@@ -1,29 +1,209 @@
-{% extends "base.html" %}
-{% block title %} Resource Form {% endblock %}
-{% block content %}
-<div class="container mt-4">
+{% extends "base.html" %} {% block title %}Resource Form{% endblock %} {% block content %}
+<div class="container-fluid px-4">
+  <!-- Header Section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div
+        class="card border-0"
+        style="
+          background: linear-gradient(135deg,  #667eea 0%, #764ba2 100%);
+          color: white;
+        "
+      >
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h1 class="display-6 fw-bold mb-2">
+                <i class="fas fa-user-plus me-3"></i>
+                Resource Management
+              </h1>
+              <p class="lead mb-0">
+                <i class="fas fa-edit me-2"></i>
+                Add or update resource information
+              </p>
+            </div>
+            <div class="col-md-4 text-end">
+              <a
+                href="{% url 'resources:resource_list' %}"
+                class="btn btn-light btn-lg"
+              >
+                <i class="fas fa-arrow-left me-2"></i>Back to Resources
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Current Selection Alert -->
   {% if year and month %}
-  <div class="alert alert-info">
-    <strong>Selected Year:</strong> {{ year }}<br>
-    <strong>Selected Month:</strong> {{ month }}
+  <div class="row mb-4">
+    <div class="col-12">
+      <div
+        class="alert alert-info border-0"
+        style="
+          border-radius: 12px;
+          background: rgba(79, 172, 254, 0.1);
+          border-left: 4px solid #4facfe !important;
+        "
+      >
+        <div class="d-flex align-items-center">
+          <i class="fas fa-calendar-alt me-3 text-info"></i>
+          <div>
+            <strong>Current Selection:</strong> Year {{ year }}, Month {{ month}} <br /><small class="text-muted"
+              >Resource data will be associated with this time period</small
+            >
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
   {% endif %}
-  <form method="post">
-    {% csrf_token %}
-    {% for field in form %}
-      <div class="mb-3">
-        {{ field.label_tag }} {{ field }}
-        {% if field.help_text %}
-        <small class="form-text text-muted">{{ field.help_text }}</small>
-        {% endif %}
-        {% for error in field.errors %}
-        <div class="text-danger">{{ error }}</div>
-        {% endfor %}
+
+  <!-- Form Section -->
+  <div class="row justify-content-center">
+    <div class="col-lg-6">
+      <div class="card border-0">
+        <div class="card-header bg-transparent border-0 pb-0">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-user-circle text-primary me-2"></i>
+            Resource Information
+          </h5>
+        </div>
+        <div class="card-body p-4">
+          <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %} {% for field in form %}
+            <div class="mb-4">
+              <label
+                for="{{ field.id_for_label }}"
+                class="form-label fw-semibold"
+              >
+                {% if field.field.required %}
+                <span class="text-danger">*</span>
+                {% endif %} {{ field.label }}
+              </label>
+
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0">
+                  {% if 'name' in field.name %}
+                  <i class="fas fa-user text-primary"></i>
+                  {% elif 'working' in field.name %}
+                  <i class="fas fa-calendar-week text-success"></i>
+                  {% elif 'present_day' in field.name %}
+                  <i class="fas fa-calendar-check text-info"></i>
+                  {% elif 'present_hours' in field.name %}
+                  <i class="fas fa-clock text-warning"></i>
+                  {% elif 'year' in field.name %}
+                  <i class="fas fa-calendar-alt text-danger"></i>
+                  {% elif 'month' in field.name %}
+                  <i class="fas fa-calendar text-secondary"></i>
+                  {% else %}
+                  <i class="fas fa-pencil-alt text-muted"></i>
+                  {% endif %}
+                </span>
+                {{ field }}
+              </div>
+
+              {% if field.help_text %}
+              <div class="form-text mt-2">
+                <i class="fas fa-info-circle me-1"></i>{{ field.help_text }}
+              </div>
+              {% endif %} {% for error in field.errors %}
+              <div class="text-danger mt-2">
+                <i class="fas fa-exclamation-triangle me-1"></i>{{ error }}
+              </div>
+              {% endfor %}
+            </div>
+            {% endfor %}
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-center gap-3 mt-5">
+              <button type="submit" class="btn btn-primary btn-lg px-5">
+                <i class="fas fa-save me-2"></i>Save Resource
+              </button>
+              <a
+                href="{% url 'resources:resource_list' %}"
+                class="btn btn-outline-secondary btn-lg px-5"
+              >
+                <i class="fas fa-times me-2"></i>Cancel
+              </a>
+            </div>
+          </form>
+        </div>
       </div>
-    {% endfor %}
-    <button type="submit" class="btn btn-primary">
-      Save
-    </button>
-  </form>
+    </div>
+  </div>
 </div>
+
+<!-- Custom Styles -->
+<style>
+  .input-group-text {
+    border-radius: 8px 0 0 8px;
+    width: 50px;
+    justify-content: center;
+  }
+
+  .form-control,
+  .form-select {
+    border-radius: 0 8px 8px 0;
+    padding: 0.75rem 1rem;
+    border-left: none;
+  }
+
+  .form-control:focus,
+  .form-select:focus {
+    border-color: #4facfe;
+    box-shadow: 0 0 0 0.2rem rgba(79, 172, 254, 0.25);
+  }
+
+  .card {
+    backdrop-filter: blur(10px);
+  }
+
+  .btn {
+    border-radius: 25px;
+    font-weight: 500;
+  }
+
+  .form-label {
+    margin-bottom: 0.75rem;
+  }
+
+  .needs-validation .form-control:invalid {
+    border-color: #dc3545;
+  }
+
+  .needs-validation .form-control:valid {
+    border-color: #198754;
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Add required attribute to required fields
+    document
+      .querySelectorAll("label .text-danger")
+      .forEach(function (asterisk) {
+        const label = asterisk.closest("label");
+        const fieldId = label.getAttribute("for");
+        const field = document.getElementById(fieldId);
+        if (field) {
+          field.setAttribute("required", "required");
+        }
+      });
+
+    // Form validation
+    const form = document.querySelector(".needs-validation");
+    if (form) {
+      form.addEventListener("submit", function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add("was-validated");
+      });
+    }
+  });
+</script>
 {% endblock %}

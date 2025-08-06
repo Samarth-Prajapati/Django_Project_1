@@ -6,15 +6,17 @@ from django.contrib import messages
  
  
 def resource_list(request):
-    # resources = Resource.active_objects.all()  # Only show active resources
-    # return render(request, 'resources/resource_list.html', {'resources': resources, 'title': 'Resources'})
+    # Get year and month from session (set by home page)
     selected_year = request.session.get('selected_year')
     selected_month = request.session.get('selected_month')
+    
+    # If no session values, redirect to home page to set them
+    if not selected_year or not selected_month:
+        return redirect('dashboard_home')
+    
     resources = Resource.active_objects.all()  # Only show active resources
-    if selected_year:
-        resources = resources.filter(year=selected_year)
-    if selected_month:
-        resources = resources.filter(month=selected_month)
+    resources = resources.filter(year=selected_year, month=selected_month)
+    
     return render(request, 'resources/resource_list.html', {
         'resources': resources,
         'title': 'Resources',
@@ -26,9 +28,11 @@ def resource_create(request):
     # Get year/month from session (set by dashboard)
     year = request.session.get('selected_year')
     month = request.session.get('selected_month')
+    
     if not (year and month):
         messages.warning(request, 'Please select year and month from dashboard before adding a resource.')
-        return redirect('home')
+        return redirect('dashboard_home')
+        
     if request.method == 'POST':
         form = ResourceForm(request.POST)
         if form.is_valid():

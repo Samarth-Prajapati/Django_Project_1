@@ -11,11 +11,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         excel_path = options['excel_path']
         df = pd.read_excel(excel_path)
-        df.info()
-        print('info', df.info)
-        df.dropna()
-        df.dropna(how='all')
-        print("ayushi\n\n\n",df.head())
+        
+        # Clean the data
+        df = df.dropna(how='all')
+        
         for idx, row in df.iterrows():
             present_day = row.get('Present Days', 0)
             resource, created = Resource.objects.update_or_create(
@@ -29,6 +28,6 @@ class Command(BaseCommand):
                 }
             )
             self.stdout.write(self.style.SUCCESS(
-                f"{'Created' if created else 'Updated'} resource: {resource.resource_name} (May 2024)"
+                f"{'Created' if created else 'Updated'} resource: {resource.resource_name} (May 2025)"
             ))
         self.stdout.write(self.style.SUCCESS('Resource import complete!'))
