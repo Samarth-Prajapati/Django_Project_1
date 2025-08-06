@@ -89,6 +89,7 @@ def project_create(request):
             project.year = year
             project.month = month
             project.save()
+            project_form.save_m2m()  # Save many-to-many relationships (resources)
             return redirect('projects:project_list')
     else:
         project_form = ProjectForm(initial={'year': year, 'month': month})

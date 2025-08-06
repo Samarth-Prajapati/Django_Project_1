@@ -48,6 +48,7 @@
             <table class="table table-hover align-middle" id="resourcesTable">
               <thead>
                 <tr class="text-center align-middle">
+                  <th>*</th>
                   <th><i class="fas fa-user me-2"></i>Name</th>
                   <th><i class="fas fa-calendar-week me-2"></i>Working Days</th>
                   <th>
@@ -62,6 +63,7 @@
               <tbody>
                 {% for resource in resources %}
                 <tr class="resource-row">
+                  <td>{{ forloop.counter }}</td>
                   <td class="fw-semibold">
                     <div class="d-flex align-items-center">
                       <div class="avatar-circle me-3">

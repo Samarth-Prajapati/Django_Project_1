@@ -49,6 +49,7 @@
             <table class="table table-hover align-middle" id="projectsTable">
               <thead>
                 <tr class="text-center align-middle">
+                  <th>*</th>
                   <th>
                     <i class="fas fa-project-diagram me-2"></i>Project Name
                   </th>
@@ -67,6 +68,7 @@
               <tbody>
                 {% for project in projects %}
                 <tr class="project-row">
+                  <td>{{ forloop.counter }}</td>
                   <td class="fw-semibold">
                     <div class="d-flex align-items-center">
                       <div class="project-icon me-3">

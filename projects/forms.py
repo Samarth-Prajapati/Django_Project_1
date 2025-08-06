@@ -33,7 +33,7 @@ class ProjectForm(forms.ModelForm):
             'billable_days': 'Billable Days',
             'non_billable_days': 'Non-Billable Days',
             'resources': 'Assigned Resources',
-            'assign_project': 'Assigned Resource',
+            'assign_project': 'Project Profile',
             'poc': 'Point of Contact',
             'is_active': 'Active?',
         }
