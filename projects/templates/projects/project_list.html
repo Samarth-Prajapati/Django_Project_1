@@ -44,6 +44,7 @@
     <div class="col-12">
       <div class="card border-0">
         <div class="card-body p-4">
+          {% if projects %}
           <div class="table-responsive">
             <table class="table table-hover align-middle" id="projectsTable">
               <thead>
@@ -150,29 +151,27 @@
                     </div>
                   </td>
                 </tr>
-                {% empty %}
-                <tr>
-                  <td colspan="12" class="text-center py-5">
-                    <div class="empty-state">
-                      <i
-                        class="fas fa-project-diagram text-muted"
-                        style="font-size: 3rem"
-                      ></i>
-                      <p class="text-muted mt-3 mb-0">No projects available.</p>
-                      <a
-                        href="{% url 'projects:project_create' %}"
-                        class="btn btn-primary mt-3"
-                      >
-                        <i class="fas fa-plus me-2"></i>Create Your First
-                        Project
-                      </a>
-                    </div>
-                  </td>
-                </tr>
                 {% endfor %}
               </tbody>
             </table>
           </div>
+          {% else %}
+          <div class="text-center py-5">
+            <div class="empty-state">
+              <i
+                class="fas fa-project-diagram text-muted"
+                style="font-size: 3rem"
+              ></i>
+              <p class="text-muted mt-3 mb-0">No projects available.</p>
+              <a
+                href="{% url 'projects:project_create' %}"
+                class="btn btn-primary mt-3"
+              >
+                <i class="fas fa-plus me-2"></i>Create Your First Project
+              </a>
+            </div>
+          </div>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -210,38 +209,41 @@
 <!-- DataTables Init Script -->
 <script>
   $(document).ready(function () {
-    $("#projectsTable").DataTable({
-      responsive: true,
-      pageLength: 25,
-      lengthMenu: [
-        [10, 25, 50, 100, -1],
-        [10, 25, 50, 100, "All"],
-      ],
-      language: {
-        search: "Search Projects:",
-        lengthMenu: "Show _MENU_ projects per page",
-        info: "Showing _START_ to _END_ of _TOTAL_ projects",
-        infoEmpty: "No projects to display",
-        infoFiltered: "(filtered from _MAX_ total projects)",
-        paginate: {
-          first: "First",
-          last: "Last",
-          next: "Next",
-          previous: "Previous",
+    // Only initialize DataTables if the table exists and has data
+    if ($("#projectsTable").length) {
+      $("#projectsTable").DataTable({
+        pageLength: 25,
+        lengthMenu: [
+          [10, 25, 50, 100, -1],
+          [10, 25, 50, 100, "All"],
+        ],
+        language: {
+          search: "Search Projects:",
+          lengthMenu: "Show _MENU_ projects per page",
+          info: "Showing _START_ to _END_ of _TOTAL_ projects",
+          infoEmpty: "No projects to display",
+          infoFiltered: "(filtered from _MAX_ total projects)",
+          paginate: {
+            first: "First",
+            last: "Last",
+            next: "Next",
+            previous: "Previous",
+          },
+          emptyTable: "No projects available in table",
+          zeroRecords: "No matching projects found",
         },
-        emptyTable: "No projects available in table",
-        zeroRecords: "No matching projects found",
-      },
-      columnDefs: [
-        { orderable: false, targets: [11] }, // Disable ordering on Actions column
-        { className: "text-center", targets: [0, 2, 6, 7, 8, 9, 10, 11] }, // Center align specific columns
-        { width: "15%", targets: [1] }, // Project name width
-        { width: "10%", targets: [11] }, // Actions width
-      ],
-      order: [[1, "asc"]], // Default sort by project name
-      stateSave: true, // Remember user preferences
-      stateDuration: 60 * 60 * 24, // 24 hours
-    });
+        columnDefs: [
+          { orderable: false, targets: [11] }, // Disable ordering on Actions column
+          {
+            className: "text-center",
+            targets: [0, 2, 4, 5, 6, 7, 8, 9, 10, 11],
+          }, // Center align specific columns
+        ],
+        order: [[1, "asc"]], // Default sort by project name
+        scrollX: true,
+        autoWidth: false,
+      });
+    }
   });
 </script>
 {% endblock %}
