@@ -101,7 +101,6 @@ def project_create(request):
         'month': month
     })
 
-
 def project_edit(request, pk):
     project = get_object_or_404(Project, pk=pk)
     if request.method == 'POST':
@@ -116,7 +115,6 @@ def project_edit(request, pk):
         'form': project_form,
         'title': 'Edit Project'
     })
-
 
 def project_delete(request, pk):
     project = get_object_or_404(Project, pk=pk)
