@@ -4,9 +4,8 @@ from .models import Resource
 from .forms import ResourceForm
 from django.contrib import messages
 from projects.models import Project
- 
- 
- 
+
+
 def resource_list(request):
     # Get year and month from session (set by home page)
     selected_year = request.session.get('selected_year')
@@ -76,10 +75,13 @@ def resource_canvas_tree_visualization(request):
 
 
 def resource_tree_view(request):
-    """API endpoint that returns resource tree data as JSON with individual resource nodes."""
+    """API endpoint that returns optimized resource tree data with all relationships."""
     # Get year and month from session
     selected_year = request.session.get('selected_year')
     selected_month = request.session.get('selected_month')
+    
+    # Get selected resource ID from request
+    selected_resource_id = request.GET.get('resource_id')
     
     # Filter out soft-deleted resources (only active resources) and by session year/month
     resources = Resource.objects.filter(is_active=True)
@@ -87,89 +89,123 @@ def resource_tree_view(request):
     if selected_year and selected_month:
         resources = resources.filter(year=selected_year, month=selected_month)
     
-    resources = resources.all()
+    # If specific resource selected, filter to that resource only
+    if selected_resource_id:
+        try:
+            resources = resources.filter(id=int(selected_resource_id))
+        except (ValueError, TypeError):
+            pass  # Invalid resource_id, show all resources
     
-    # Create resource nodes - each resource as a separate tree
+    resources = resources.prefetch_related('assigned_projects', 'poc', 'project_assigned_to').all()
+    
+    # Create comprehensive resource nodes
     resource_trees = []
+    
     for resource in resources:
-        # Get projects where this resource is assigned (many-to-many)
-        assigned_projects = Project.objects.filter(
-            resources=resource, 
-            is_active=True
-        )
+        # Get projects efficiently with single queries
+        base_filter = {'is_active': True}
         if selected_year and selected_month:
-            assigned_projects = assigned_projects.filter(year=selected_year, month=selected_month)
+            base_filter.update({'year': selected_year, 'month': selected_month})
         
         # Get projects where this resource is POC
-        poc_projects = Project.objects.filter(
-            poc=resource, 
-            is_active=True
-        )
-        if selected_year and selected_month:
-            poc_projects = poc_projects.filter(year=selected_year, month=selected_month)
+        poc_projects = Project.objects.filter(poc=resource, **base_filter)
         
-        # Get projects where this resource is assigned as single resource
-        single_assigned_projects = Project.objects.filter(
-            assign_project=resource, 
-            is_active=True
-        )
-        if selected_year and selected_month:
-            single_assigned_projects = single_assigned_projects.filter(year=selected_year, month=selected_month)
+        # Get projects where this resource is directly assigned/responsible
+        responsible_projects = Project.objects.filter(assign_project=resource, **base_filter)
         
-        # Create children nodes for projects
+        # Get projects where this resource is assigned (many-to-many)
+        assigned_projects = Project.objects.filter(resources=resource, **base_filter)
+        
         children = []
         
-        # Add assigned projects (many-to-many relationship)
-        if assigned_projects.exists():
-            children.append({
-                "text": "👥 Assigned Projects",
-                "icon": "fas fa-tasks",
-                "children": [
-                    {
-                        "text": f"{project.project_name}",
-                        "icon": "fas fa-project-diagram"
-                    } for project in assigned_projects
-                ],
-                "opened": True
-            })
+        # Track counts for summary
+        poc_count = poc_projects.count()
+        responsible_count = responsible_projects.count()
+        assigned_only_count = 0
         
         # Add POC projects
-        if poc_projects.exists():
+        if poc_count > 0:
+            poc_children = []
+            for project in poc_projects:
+                project_node = {
+                    "text": f"{project.project_name}",
+                    "icon": "fas fa-bullseye",
+                    "type": "project"
+                }
+                poc_children.append(project_node)
+                
             children.append({
-                "text": "🎯 POC Projects",
-                "icon": "fas fa-bullseye",
-                "children": [
-                    {
-                        "text": f"{project.project_name}",
-                        "icon": "fas fa-project-diagram"
-                    } for project in poc_projects
-                ],
-                "opened": True
+                "text": f"POC Projects ({poc_count})",
+                "icon": "fas fa-crown",
+                "children": poc_children,
+                "opened": False,
+                "type": "pocProjects"
             })
         
-        # Add single assigned projects
-        if single_assigned_projects.exists():
+        # Add responsible projects
+        if responsible_count > 0:
+            resp_children = []
+            for project in responsible_projects:
+                project_node = {
+                    "text": f"{project.project_name}",
+                    "icon": "fas fa-clipboard-check",
+                    "type": "project"
+                }
+                resp_children.append(project_node)
+                
             children.append({
-                "text": "📋 Directly Assigned Projects",
+                "text": f"Responsible Projects ({responsible_count})",
                 "icon": "fas fa-user-tie",
-                "children": [
-                    {
-                        "text": f"{project.project_name}",
-                        "icon": "fas fa-project-diagram"
-                    } for project in single_assigned_projects
-                ],
-                "opened": True
+                "children": resp_children,
+                "opened": False,
+                "type": "responsibleProjects"
             })
         
-        # Create resource node
+        # Add assigned-only projects (excluding POC and responsible)
+        assigned_only = []
+        for project in assigned_projects:
+            if project.poc != resource and project.assign_project != resource:
+                project_node = {
+                    "text": f"{project.project_name}",
+                    "icon": "fas fa-project-diagram",
+                    "type": "project"
+                }
+                assigned_only.append(project_node)
+                assigned_only_count += 1
+        
+        if assigned_only_count > 0:
+            children.append({
+                "text": f"Assigned Projects ({assigned_only_count})",
+                "icon": "fas fa-tasks",
+                "children": assigned_only,
+                "opened": False,
+                "type": "assignedProjects"
+            })
+        
+        # Calculate total projects
+        total_projects = poc_count + responsible_count + assigned_only_count
+        
+        # Create main resource node
         resource_node = {
             "text": f"{resource.resource_name}",
-            "icon": "fas fa-user",
+            "icon": "fas fa-user-circle",
             "opened": True,
-            "children": children
+            "children": children,
+            "type": "resource",
+            "resource_data": {
+                "id": resource.id,
+                "name": resource.resource_name,
+                "total_projects": total_projects,
+                "poc_count": poc_count,
+                "responsible_count": responsible_count,
+                "assigned_count": assigned_only_count
+            }
         }
         
         resource_trees.append(resource_node)
+    
+    # Sort resources by total projects (descending) and then by name
+    resource_trees.sort(key=lambda x: (-x['resource_data']['total_projects'], x['resource_data']['name']))
     
     return JsonResponse(resource_trees, safe=False)
 
@@ -185,14 +221,37 @@ def resource_list_api(request):
     if selected_year and selected_month:
         resources = resources.filter(year=selected_year, month=selected_month)
     
-    resources = resources.values('id', 'resource_name', 'present_day', 'present_hours')
-    resource_list = [
-        {
-            'id': r['id'],
-            'name': r['resource_name'],
-            'present_day': r['present_day'],
-            'present_hours': r['present_hours']
-        }
-        for r in resources
-    ]
+    # Get project counts for each resource
+    resource_list = []
+    for resource in resources:
+        # Count total projects for this resource
+        poc_count = Project.objects.filter(poc=resource, is_active=True).count()
+        responsible_count = Project.objects.filter(assign_project=resource, is_active=True).count()
+        assigned_count = Project.objects.filter(resources=resource, is_active=True).count()
+        
+        if selected_year and selected_month:
+            poc_count = Project.objects.filter(
+                poc=resource, is_active=True, year=selected_year, month=selected_month
+            ).count()
+            responsible_count = Project.objects.filter(
+                assign_project=resource, is_active=True, year=selected_year, month=selected_month
+            ).count()
+            assigned_count = Project.objects.filter(
+                resources=resource, is_active=True, year=selected_year, month=selected_month
+            ).count()
+        
+        total_projects = poc_count + responsible_count + assigned_count
+        
+        resource_list.append({
+            'id': resource.id,
+            'name': resource.resource_name,
+            'total_projects': total_projects,
+            'poc_count': poc_count,
+            'responsible_count': responsible_count,
+            'assigned_count': assigned_count
+        })
+    
+    # Sort by total projects (descending) and then by name
+    resource_list.sort(key=lambda x: (-x['total_projects'], x['name']))
+    
     return JsonResponse(resource_list, safe=False)
